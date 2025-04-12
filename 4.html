@@ -13,6 +13,8 @@
             background-color: #e0f7fa;
             color: #333;
             animation: fadeIn 1.5s ease-in-out;
+            position: relative;
+            overflow: hidden;
         }
 
         #background-video {
@@ -24,16 +26,18 @@
             object-fit: cover;
             z-index: -1; /* Ensure the video is behind all content */
         }
+
         .container {
             width: 80%;
             margin: 0 auto;
+            position: relative; /* Ensure content is above the video */
         }
 
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #044a07;
+            background-color: rgba(4, 74, 7, 0.8); /* Semi-transparent background */
             color: #fff;
             padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -47,7 +51,7 @@
         header .logo img {
             height: 40px;
             margin-right: 10px;
-            filter: drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.8)); /* Use drop-shadow instead of box-shadow */
+            filter: drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.3));
         }
 
         header h1 {
@@ -85,49 +89,30 @@
         }
 
         .hero {
-    background-image: url('images/nature2.webp'); /* Use a static image as a fallback */
-    background-size: cover;
-    background-position: top center; /* Align the image to the top */
-    padding: 10rem 0; /* Increase the padding to make the hero area bigger */
-    text-align: center;
-    color: #fffb00;
-    animation: zoomIn 1.5s ease-in-out;
-    position: relative; /* Ensure the pseudo-element is contained */
-    overflow: hidden; /* Ensure the pseudo-element is contained */
-}
+            padding: 6rem 0;
+            text-align: center;
+            color: #fff;
+            animation: zoomIn 1.5s ease-in-out;
+        }
 
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Ensure the layer is behind the text but above the background image */
-}
+        .hero h2 {
+            font-size: 3rem;
+            margin: 0;
+            animation: fadeInUp 2s ease-in-out;
+        }
 
-.hero h2 {
-    font-size: 3rem;
-    margin: 0;
-    animation: fadeInUp 2s ease-in-out;
-    position: relative; /* Ensure the text is above the semi-transparent layer */
-    z-index: 2; /* Ensure the text is above the semi-transparent layer */
-}
-
-.hero p {
-    font-size: 1.5rem;
-    animation: fadeInUp 2.5s ease-in-out;
-    position: relative; /* Ensure the text is above the semi-transparent layer */
-    z-index: 2; /* Ensure the text is above the semi-transparent layer */
-}
-
+        .hero p {
+            font-size: 1.5rem;
+            animation: fadeInUp 2.5s ease-in-out;
+        }
 
         main {
             padding: 2rem 0;
+            position: relative; /* Ensure content is above the video */
         }
 
         article {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -160,7 +145,7 @@
         }
 
         footer {
-            background-color: #044a07;
+            background-color: rgba(4, 74, 7, 0.8); /* Semi-transparent background */
             color: #fff;
             text-align: center;
             padding: 1rem 0;
@@ -195,7 +180,7 @@
                 display: none;
                 flex-direction: column;
                 width: 100%;
-                background-color: #044a07;
+                background-color: rgba(4, 74, 7, 0.8); /* Semi-transparent background */
                 position: absolute;
                 top: 60px;
                 left: 0;
@@ -274,7 +259,7 @@
 </head>
 <body>
     <video autoplay muted loop id="background-video">
-        <source src="images/background3.mp4" type="video/mp4">
+        <source src="background3.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     <header>
@@ -282,7 +267,6 @@
             <img src="images/logo.png" alt="Moodchallenger Logo">
             <h1>Moodchallenger</h1>
         </div>
-        
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
@@ -298,7 +282,7 @@
     </header>
     <div class="hero">
         <div class="container">
-            <h2>Let's Explore the Beauty Shall We? </h2>
+            <h2>Let's Explore Together Shall We?</h2>
         </div>
     </div>
     <main>
@@ -306,7 +290,7 @@
             <article>
                 <h2>Our Latest Nature Photography</h2>
                 <p>Discover stunning nature photographs and stories behind them. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.</p>
-                <img src=images/nature.jpg alt="Nature Photography" style="width: 100%; border-radius: 8px; margin-top: 1rem; animation: fadeIn 2s ease-in-out;">
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Nature Photography" style="width: 100%; border-radius: 8px; margin-top: 1rem; animation: fadeIn 2s ease-in-out;">
                 <button onclick="loadMorePosts()">Load More Posts</button>
             </article>
             <div id="additional-posts"></div>
@@ -329,7 +313,7 @@
             newPost.innerHTML = `
                 <h2>Another Nature Photography Post</h2>
                 <p>Explore more stunning nature photographs and stories behind them. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.</p>
-                <img src=images/nature1.webp alt="Nature Photography" style="width: 100%; border-radius: 8px; margin-top: 1rem; animation: fadeIn 2s ease-in-out;">
+                <img src="https://images.unsplash.com/photo-1518173801515-a4a9db2a8e25" alt="Nature Photography" style="width: 100%; border-radius: 8px; margin-top: 1rem; animation: fadeIn 2s ease-in-out;">
             `;
             additionalPosts.appendChild(newPost);
         }
