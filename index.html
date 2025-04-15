@@ -614,14 +614,14 @@
     .post-content h3 {
       font-size: clamp(1.1rem, 3vw, 1.5rem);
       margin-bottom: clamp(0.5rem, 1.5vw, 1rem);
-      color: black; /* Ensure heading is black */
+      color: rgb(237, 229, 229); /* Ensure heading is black */
     }
 
     .post-content p {
       font-size: clamp(0.9rem, 2vw, 1.1rem);
       line-height: 1.6;
       margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
-      color: #333; /* Slightly softer black for paragraph text */
+      color: #968f8f; /* Slightly softer black for paragraph text */
     }
 
     .read-more {
@@ -663,6 +663,30 @@
       .navbar {
         padding: 1rem; /* Reduce padding for smaller screens */
       }
+      /* Mobile Menu */
+@media (max-width: 768px) {
+  .menu {
+    position: fixed;
+    top: clamp(4rem, 10vw, 5rem);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: var(--primary);
+    padding: clamp(1rem, 3vw, 2rem);
+    transform: translateY(-150%);
+    transition: transform 0.3s ease;
+  }
+
+  .menu.active {
+    transform: translateY(0);
+  }
+
+  .hamburger {
+    display: block;
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+  }
+}
+
 
       .menu {
         display: none; /* Hide the menu by default on smaller screens */
@@ -1229,13 +1253,14 @@
         <a href="#blog">Blog</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
-        <a href="login.html" class="sign-in-btn">Sign In</a> <!-- New Sign In button -->
+        <a href="login.html" class="sign-in-btn">Sign In</a>
       </div>
       <div class="hamburger" onclick="toggleMenu()">
         <i class="fas fa-bars"></i>
       </div>
     </div>
   </nav>
+  
 
   <section class="hero" id="home">
     <div class="hero-image" style="background-image: url('images/ant.jpg');"></div>
@@ -1412,6 +1437,12 @@
 
     window.addEventListener('scroll', handleScrollAnimation);
     handleScrollAnimation(); // Trigger on page load
+  </script>
+  <script>
+    function toggleMenu() {
+      const menu = document.querySelector('.menu');
+      menu.classList.toggle('active');
+    }
   </script>
 </body>
 </html>
