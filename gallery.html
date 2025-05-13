@@ -15,11 +15,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
   <style>
     /* Base Styles */
+    * {
+      box-sizing: border-box; /* Include padding and border in element's width and height */
+    }
+
     html, body {
-      height: 100%;
+      width: 100%;
+      height: auto; /* Allow the height to adjust dynamically */
       margin: 0;
-      display: flex;
-      flex-direction: column;
+      padding: 0;
+      overflow-x: hidden; /* Prevent horizontal scrolling */
+      overflow-y: auto; /* Ensure vertical scrolling is enabled */
     }
 
     body {
@@ -89,7 +95,119 @@
     }
 
     .navbar .menu a:hover {
-      color: #e74c3c; /* Accent color */
+      color: #33120f; /* Accent color */
+    }
+
+    /* Enhanced Hamburger Menu */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 25px;
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out; /* Smooth rotation animation */
+    }
+
+    .hamburger div {
+      background-color: white;
+      height: 3px;
+      width: 100%;
+      border-radius: 2px;
+      transition: all 0.3s ease-in-out; /* Smooth transition for lines */
+    }
+
+    .hamburger.active {
+      transform: rotate(90deg); /* Rotate the hamburger icon */
+    }
+
+    .hamburger.active div:nth-child(1) {
+      transform: translateY(10px) rotate(45deg); /* Create X shape */
+    }
+
+    .hamburger.active div:nth-child(2) {
+      opacity: 0; /* Hide the middle line */
+    }
+
+    .hamburger.active div:nth-child(3) {
+      transform: translateY(-10px) rotate(-45deg); /* Create X shape */
+    }
+
+    .navbar .menu {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      margin: 0 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(192, 188, 188, 0.493);
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: rgba(230, 7, 7, 0.959);
+    }
+
+    /* Mobile Menu Styles */
+    @media (max-width: 768px) {
+      .menu {
+        display: none;
+        flex-direction: column !important;
+        align-items: stretch;
+        width: 100%;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 1rem 0.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        gap: 0.7rem;
+      }
+      .menu.active {
+        display: flex;
+      }
+      .menu a {
+        display: block;
+        width: 100%;
+        color: white;
+        text-decoration: none;
+        padding: 0.7rem 1rem;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        text-align: center;
+        transition: background 0.3s ease;
+        font-weight: bold;
+      }
+      .menu a:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      .hamburger {
+        display: flex;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .hamburger {
+        display: none;
+      }
+
+      .menu {
+        display: flex !important;
+        flex-direction: row;
+        position: static;
+        width: auto;
+        background: none;
+        padding: 0;
+        box-shadow: none;
+        opacity: 1;
+        transform: none;
+      }
     }
 
     /* Gallery Section */
@@ -103,7 +221,7 @@
 
     .gallery h1 {
       font-family: 'Monoton', cursive; /* Apply the Monoton font */
-      font-size: 5rem !important; /* Ensure the font size is applied */
+      font-size: calc(3.5rem + 4vw); /* Adjusted dynamic font size to make it slightly larger */
       margin-bottom: 2rem;
       color: #66150c; /* Accent color */
       text-align: center;
@@ -208,39 +326,187 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
-      .gallery-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Smaller columns for mobile */
-        gap: 1rem; /* Reduce spacing between frames */
+      html, body {
+        width: 100%; /* Use 100% width to fit the viewport */
+        height: 100%; /* Use 100% height to fit the viewport */
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scrolling */
       }
 
-      .gallery h1 {
-        font-size: 1.8rem; /* Smaller title size for mobile */
+      .navbar {
+        width: 100%; /* Make the navbar span the full width */
+        height: 60px; /* Adjust height */
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.8);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar .logo-container img {
+        width: 25px; /* Adjust logo size for mobile */
+        height: 25px;
       }
 
       .navbar .logo-text {
-        font-size: 1rem; /* Smaller logo text for mobile */
+        font-size: 1rem; /* Adjust text size for mobile */
+      }
+
+      .hamburger {
+        display: flex; /* Show hamburger menu on mobile */
+      }
+
+      .menu {
+        display: none; /* Hide menu by default */
+        flex-direction: column !important;
+        align-items: stretch;
+        width: 100%;
+        position: absolute;
+        top: 60px; /* Position below the navbar */
+        right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 1rem 0.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: slideDown 0.3s ease-in-out; /* Smooth slide-down animation */
+        gap: 0.7rem;
+      }
+
+      .menu.active {
+        display: flex; /* Show menu when active */
+      }
+
+      .menu a {
+        display: block;
+        width: 100%;
+        color: white;
+        text-decoration: none;
+        padding: 0.7rem 1rem;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        text-align: center;
+        transition: background 0.3s ease;
+        font-weight: bold;
+      }
+
+      .menu a:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .gallery {
+        padding: 1rem; /* Reduce padding for smaller screens */
+      }
+
+      .gallery h1 {
+        font-size: 1.8rem; /* Adjust title size */
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Smaller columns for tablets */
+        gap: 1rem; /* Reduce spacing between items */
       }
 
       footer {
-        font-size: 0.7rem; /* Smaller footer text for mobile */
+        font-size: 0.8rem; /* Adjust footer text size */
+        padding: 1rem; /* Reduce padding */
       }
     }
 
     @media (max-width: 480px) {
-      .gallery-grid {
-        grid-template-columns: 1fr; /* Single column layout for very small screens */
+      .navbar {
+        height: 50px; /* Further reduce height */
+        padding: 0.5rem;
+      }
+
+      .navbar .logo-container img {
+        width: 20px; /* Smaller logo size */
+        height: 20px;
+      }
+
+      .navbar .logo-text {
+        font-size: 0.8rem; /* Smaller text size */
       }
 
       .gallery h1 {
         font-size: 1.5rem; /* Further reduce title size */
       }
 
-      .navbar .logo-text {
-        font-size: 0.9rem; /* Further reduce logo text size */
+      .gallery-grid {
+        grid-template-columns: 1fr; /* Single column layout */
       }
 
       footer {
-        font-size: 0.6rem; /* Further reduce footer text size */
+        font-size: 0.7rem; /* Smaller footer text */
+      }
+    }
+
+    @media (min-width: 769px) {
+      .hamburger {
+        display: none; /* Hide hamburger menu on larger screens */
+      }
+
+      .menu {
+        display: flex; /* Show menu as inline options */
+        flex-direction: row;
+        position: static;
+        background: none;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .menu a {
+        color: white;
+        text-decoration: none;
+        margin: 0 0.5rem;
+        font-size: 0.9rem; /* Smaller font size for desktop */
+        padding: 0.5rem 0.8rem;
+        background: rgba(192, 188, 188, 0.493);
+        border-radius: 5px;
+        transition: background 0.3s ease;
+      }
+
+      .menu a:hover {
+        background: rgba(230, 7, 7, 0.959);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .menu {
+        display: flex; /* Ensure menu is visible on desktop */
+        flex-direction: row;
+        position: static;
+        background: none;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .menu a {
+        color: white;
+        text-decoration: none;
+        margin: 0 0.5rem;
+        font-size: 1rem; /* Adjust font size for desktop */
+        padding: 0.5rem 0.8rem;
+        background: rgba(192, 188, 188, 0.493);
+        border-radius: 5px;
+        transition: background 0.3s ease;
+      }
+
+      .menu a:hover {
+        background: rgba(230, 7, 7, 0.959);
+      }
+
+      .hamburger {
+        display: none; /* Hide hamburger menu on desktop */
+      }
+
+      .gallery h1 {
+        font-size: calc(3rem + 2vw); /* Larger font size for desktop screens */
       }
     }
 
@@ -266,6 +532,17 @@
       }
       100% {
         transform: scale(1.08) rotate(0deg); /* Final state */
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
       }
     }
 
@@ -325,6 +602,21 @@
       color: white;
       cursor: pointer;
     }
+
+    button {
+      background-color: orange; /* Default button color */
+      color: white; /* Default text color */
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for hover/click */
+    }
+
+    button:hover, button:active {
+      background-color: #e69500; /* Darker orange on hover or click */
+      color: white; /* Ensure text color remains white */
+    }
   </style>
 </head>
 <body>
@@ -339,6 +631,11 @@
     <div class="logo-container">
       <img src="images/logo.png" alt="Moodchallenger Logo">
       <span class="logo-text">Moodchallenger</span>
+    </div>
+    <div class="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
     </div>
     <div class="menu">
       <a href="index.html">Home</a>
@@ -496,6 +793,36 @@
           modalImage.src = ""; // Clear the modal image source
         }, 400); // Match the transition duration
       }
+    });
+
+    // JavaScript for Hamburger Menu Toggle
+    document.addEventListener("DOMContentLoaded", () => {
+      const hamburger = document.querySelector(".hamburger");
+      const menu = document.querySelector(".menu");
+
+      hamburger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        menu.classList.toggle("active");
+        hamburger.classList.toggle("active");
+      });
+
+      // Close menu when clicking outside (only on mobile)
+      document.addEventListener("click", (event) => {
+        if (window.innerWidth <= 768) {
+          if (!hamburger.contains(event.target) && !menu.contains(event.target)) {
+            menu.classList.remove("active");
+            hamburger.classList.remove("active");
+          }
+        }
+      });
+
+      // Optional: Close menu on resize to desktop
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 768) {
+          menu.classList.remove("active");
+          hamburger.classList.remove("active");
+        }
+      });
     });
   </script>
 </body>

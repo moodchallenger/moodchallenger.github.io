@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Blog | Moodchallenger</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="galaxyfont.css">
+  <style>
+    :root {
+      --slide-width: min(90vw, 700px);
+      --slide-height: min(70vw, 400px);
+      --slide-gap: 2rem;
+      --slide-perspective: 1200px;
+      --accent: #00eaff;
+      --bg: #0a0a23;
+      --text: #fff;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Roboto', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    header {
+      width: 100%;
+      padding: 2rem 0 1rem 0;
+      text-align: center;
+      font-family: 'Audiowide', 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-shadow: 0 2px 20px #00eaff99;
+    }
+    .slider-container {
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      perspective: var(--slide-perspective);
+      margin-bottom: 2rem;
+    }
+    .slider {
+      position: relative;
+      width: var(--slide-width);
+      height: var(--slide-height);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      perspective: var(--slide-perspective);
+      margin: 0 auto;
+    }
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #181830;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px #000a, 0 1.5px 0 #00eaff44 inset;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9) translateX(100vw) rotateY(60deg);
+      transition: all 0.8s cubic-bezier(.77,0,.18,1);
+      z-index: 1;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateX(0) rotateY(0deg);
+      z-index: 2;
+    }
+    .slide.left {
+      opacity: 0.5;
+      transform: scale(0.9) translateX(-60vw) rotateY(-60deg);
+      z-index: 1;
+    }
+    .slide.right {
+      opacity: 0.5;
+      transform: scale(0.9) translateX(60vw) rotateY(60deg);
+      z-index: 1;
+    }
+    .slide-image {
+      flex: 1 1 50%;
+      background: #000;
+      border-radius: 20px 0 0 20px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+    .slide-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 20px 0 0 20px;
+      box-shadow: 0 0 40px #00eaff33;
+    }
+    .slide-content {
+      flex: 1 1 50%;
+      padding: 2rem 1.5rem 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(120deg, #0a0a23 60%, #1a1a3a 100%);
+      border-radius: 0 20px 20px 0;
+      min-width: 0;
+    }
+    .slide-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 10px #00eaff55;
+    }
+    .slide-desc {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #e0f7fa;
+      margin-bottom: 1.5rem;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+    .slide-meta {
+      font-size: 0.95rem;
+      color: #7defff;
+      margin-top: auto;
+      font-style: italic;
+    }
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #00eaffcc;
+      color: #0a0a23;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 2px 12px #00eaff55;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.85;
+    }
+    .nav-btn:hover {
+      background: #fff;
+      color: #00eaff;
+      box-shadow: 0 4px 24px #00eaff99;
+      opacity: 1;
+    }
+    .nav-btn.prev { left: -2.5rem; }
+    .nav-btn.next { right: -2.5rem; }
+    @media (max-width: 900px) {
+      :root {
+        --slide-width: 98vw;
+        --slide-height: min(80vw, 350px);
+      }
+      .slide-content { padding: 1.2rem 0.7rem; }
+      .slide-title { font-size: 1.1rem; }
+    }
+    @media (max-width: 600px) {
+      :root {
+        --slide-width: 100vw;
+        --slide-height: 350px;
+      }
+      .slide {
+        flex-direction: column;
+        min-height: 320px;
+      }
+      .slide-image, .slide-content {
+        border-radius: 20px 20px 0 0 !important;
+        width: 100%;
+        min-width: 0;
+      }
+      .slide-image img {
+        border-radius: 20px 20px 0 0 !important;
+      }
+      .slide-content {
+        border-radius: 0 0 20px 20px !important;
+        padding: 1rem 0.7rem 1.2rem 0.7rem;
+      }
+      .nav-btn.prev { left: 0.2rem; }
+      .nav-btn.next { right: 0.2rem; }
+    }
+    @media (min-width: 1024px) {
+      :root {
+        --slide-width: 900px;
+        --slide-height: 520px;
+      }
+    }
+    footer {
+      width: 100vw;
+      text-align: center;
+      color: #7defff;
+      font-size: 1rem;
+      padding: 2rem 0 1rem 0;
+      letter-spacing: 1px;
+      background: none;
+    }
+    .header-3d {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 900px;
+      width: 100%;
+      margin: 2rem auto 2rem auto;
+      gap: 0;
+      position: relative;
+      z-index: 2;
+      height: auto;
+    }
+    @media (max-width: 600px) {
+      .header-3d {
+        flex-direction: column;
+        gap: 1rem;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    .planet-3d {
+      width: 120px;
+      height: 120px;
+      min-width: 80px;
+      min-height: 80px;
+      aspect-ratio: 1 / 1; /* Always square */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      vertical-align: middle;
+      margin: 0 0.75rem 0 0;
+      flex-shrink: 0;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      z-index: 1000 !important;
+    }
+    .planet-3d canvas {
+      width: 100% !important;
+      height: 100% !important;
+      aspect-ratio: 1 / 1;
+      display: block;
+      border-radius: 50%;
+      background: transparent;
+      pointer-events: none !important;
+    }
+    @media (max-width: 600px) {
+      .planet-3d {
+        width: 70px;
+        height: 70px;
+        min-width: 50px;
+        min-height: 50px;
+        aspect-ratio: 1 / 1;
+      }
+    }
+    .header-title-3d {
+      font-family: 'Unknown Galaxy', 'Audiowide', 'Orbitron', sans-serif;
+      font-size: 3rem;
+      color: var(--accent);
+      text-shadow: 0 2px 20px #00eaff99;
+      letter-spacing: 2px;
+      opacity: 0;
+      text-align: center;
+      animation: header-slide-in 1.2s cubic-bezier(.77,0,.18,1) 0.3s forwards;
+      white-space: pre-line;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: none;
+      vertical-align: middle;
+      margin: 0;
+      z-index: 1 !important;
+    }
+    @keyframes header-slide-in {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    @media (max-width: 600px) {
+      .header-3d {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .header-title-3d {
+        font-size: 1.7rem;
+        text-align: center;
+        display: block;
+        transform: translateX(60px); /* Only animate from right on small screens */
+      }
+      .planet-3d {
+        width: 70px;
+        height: 70px;
+      }
+    }
+    /* --- Header Animation Canvas --- */
+    #header-particles-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      z-index: 2 !important;
+      display: none;
+    }
+    .menu-buttons {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s cubic-bezier(.77,0,.18,1);
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+      flex-grow: 0;
+      z-index: 1 !important;
+    }
+    .menu-buttons.active {
+      opacity: 1;
+      pointer-events: auto;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .menu-btn {
+      font-family: 'Roboto', Arial, sans-serif;
+      font-size: 1.2rem;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 2px 12px #00eaff6f;
+      margin: 0 0.2rem;
+    }
+    .menu-btn:hover {
+      background: #00eaff22;
+      color: #fff;
+      transform: translateY(-2px) scale(1.07);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+</head>
+<body>
+  <div class="header-3d">
+    <div class="planet-3d" id="planet3d"></div>
+    <canvas id="header-particles-canvas"></canvas>
+    <div class="header-title-3d" id="headerTitle3d">Moodchallenger</div>
+    <div class="menu-buttons" id="menuButtons">
+      <button class="menu-btn">Home</button>
+      <button class="menu-btn">Blog</button>
+      <button class="menu-btn">Gallery</button>
+      <button class="menu-btn">About</button>
+      <button class="menu-btn">Contact</button>
+    </div>
+  </div>
+  <div class="slider-container">
+    <div class="slider" id="slider">
+      <!-- Slides will be injected by JS -->
+      <button class="nav-btn prev" id="prevBtn" aria-label="Previous Slide">&#8592;</button>
+      <button class="nav-btn next" id="nextBtn" aria-label="Next Slide">&#8594;</button>
+    </div>
+  </div>
+  <footer>
+    &copy; 2025 Moodchallenger | Inspired by the Cosmos
+  </footer>
+  <script>
+    // Example space blog posts (replace image URLs with your own or royalty-free images)
+    const slides = [
+      {
+        image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=800&q=80",
+        title: "The Pillars of Creation",
+        desc: "A breathtaking view of the Eagle Nebula, where new stars are born in cosmic clouds of dust and gas. The iconic 'Pillars of Creation' stand as a testament to the universe's creative power.",
+        meta: "Photo: NASA/ESA Hubble | Location: Eagle Nebula"
+      },
+      {
+        image: "https://images.unsplash.com/photo-1447433819943-74a20887a81e?auto=format&fit=crop&w=800&q=80",
+        title: "Saturn's Rings in Perspective",
+        desc: "Saturn's majestic rings, composed of countless icy particles, create a mesmerizing spectacle. This image captures the planet's ethereal beauty as seen from the Cassini spacecraft.",
+        meta: "Photo: NASA/JPL-Caltech | Location: Saturn Orbit"
+      },
+      {
+        image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
+        title: "The Andromeda Approach",
+        desc: "Our neighboring galaxy, Andromeda, glows with billions of stars. This long-exposure shot reveals the spiral arms and the cosmic dance that will one day bring Andromeda and the Milky Way together.",
+        meta: "Photo: ESA/Hubble | Location: Andromeda Galaxy"
+      },
+      {
+        image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
+        title: "Lunar Shadows",
+        desc: "The Moon's rugged surface is cast in sharp relief by the sun's rays. Craters and mountains tell the story of billions of years of cosmic history.",
+        meta: "Photo: Unsplash | Location: Earth's Moon"
+      },
+      {
+        image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+        title: "Aurora Over the Arctic",
+        desc: "Dancing ribbons of green and purple light illuminate the polar sky. Auroras are created when charged solar particles collide with Earth's atmosphere, painting the night with color.",
+        meta: "Photo: Unsplash | Location: Arctic Circle"
+      }
+    ];
+
+    const slider = document.getElementById('slider');
+    let current = 0;
+
+    function renderSlides() {
+      // Remove old slides
+      slider.querySelectorAll('.slide').forEach(s => s.remove());
+      // Add new slides
+      slides.forEach((slide, idx) => {
+        const div = document.createElement('div');
+        div.className = 'slide';
+        if (idx === current) div.classList.add('active');
+        else if (idx === current - 1) div.classList.add('left');
+        else if (idx === current + 1) div.classList.add('right');
+        div.innerHTML = `
+          <div class="slide-image">
+            <img src="${slide.image}" alt="${slide.title}">
+          </div>
+          <div class="slide-content">
+            <div class="slide-title">${slide.title}</div>
+            <div class="slide-desc">${slide.desc}</div>
+            <div class="slide-meta">${slide.meta}</div>
+          </div>
+        `;
+        slider.appendChild(div);
+      });
+    }
+
+    function goToSlide(idx) {
+      if (idx < 0) idx = slides.length - 1;
+      if (idx >= slides.length) idx = 0;
+      current = idx;
+      renderSlides();
+    }
+
+    document.getElementById('prevBtn').onclick = () => goToSlide(current - 1);
+    document.getElementById('nextBtn').onclick = () => goToSlide(current + 1);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') goToSlide(current - 1);
+      if (e.key === 'ArrowRight') goToSlide(current + 1);
+    });
+
+    // Touch swipe navigation
+    let startX = null;
+    slider.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+    });
+    slider.addEventListener('touchend', e => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (dx > 50) goToSlide(current - 1);
+      if (dx < -50) goToSlide(current + 1);
+      startX = null;
+    });
+
+    // Initial render
+    renderSlides();
+
+    // 3D Planet with Three.js
+    const container = document.getElementById('planet3d');
+    function getSquareSize() {
+      // Always use the smaller of width/height, but prefer width if flex row
+      const rect = container.getBoundingClientRect();
+      return Math.min(rect.width, rect.height);
+    }
+    let size = getSquareSize();
+    // Scene
+    const scene = new THREE.Scene();
+    // Camera
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); // aspect 1:1
+    camera.position.z = 2.5;
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setSize(size, size);
+    renderer.outputEncoding = THREE.sRGBEncoding; // Ensure correct color space
+    container.appendChild(renderer.domElement);
+    // Make planet3d clickable (ensure pointer events and cursor)
+    container.style.pointerEvents = 'auto';
+    container.style.cursor = 'pointer';
+    // Use a real NASA Jupiter texture for realism
+    const textureLoader = new THREE.TextureLoader();
+    const jupiterTexture = textureLoader.load('images/jupiter.jpg', () => {
+      jupiterTexture.encoding = THREE.sRGBEncoding; // Make sure texture is sRGB
+      renderer.render(scene, camera);
+    });
+    const material = new THREE.MeshStandardMaterial({
+      map: jupiterTexture,
+      metalness: 0.1, // Add some reflectivity
+      roughness: 0.75 // Not too shiny, not too matte
+    });
+    // Sphere geometry (add this before creating the mesh)
+    const geometry = new THREE.SphereGeometry(1, 64, 64);
+    // Mesh
+    const sphere = new THREE.Mesh(geometry, material);
+    // Tilt the axis by 10 degrees
+    sphere.rotation.z = Math.PI / 18;
+    scene.add(sphere);
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Slightly reduced for contrast
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Stronger, more directional
+    directionalLight.position.set(5, 3, 5);
+    scene.add(directionalLight);
+    // Animation
+    function animate() {
+      requestAnimationFrame(animate);
+      sphere.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+    // Responsive resize
+    function resizePlanet() {
+      // Always use the smallest of width/height to keep square
+      let size = Math.min(container.offsetWidth, container.offsetHeight);
+      // If container is not square, force it to be
+      container.style.width = size + 'px';
+      container.style.height = size + 'px';
+      renderer.setSize(size, size, false);
+      camera.aspect = 1;
+      camera.updateProjectionMatrix();
+    }
+    // Initial resize
+    resizePlanet();
+    window.addEventListener('resize', resizePlanet);
+    // Also observe container size changes
+    if (window.ResizeObserver) {
+      new ResizeObserver(resizePlanet).observe(container);
+    }
+
+    // Fix: ensure planet3d click handler is attached to the correct element
+    document.getElementById('planet3d').addEventListener('click', () => {
+      if (satelliteState === 'idle') {
+        startSatellites();
+      } else if (satelliteState === 'orbit') {
+        reverseSatellites();
+      }
+    });
+
+    // --- Header Suck-In & Satellite Animation ---
+    // Fix: Ensure all required variables are defined before use
+    const headerText = document.getElementById('headerTitle3d');
+    const planet3d = document.getElementById('planet3d');
+    const menuButtons = document.getElementById('menuButtons');
+    const particlesCanvas = document.getElementById('header-particles-canvas');
+    const header3d = document.querySelector('.header-3d');
+
+    // Utility: get bounding rect relative to header-3d
+    function getRelativeRect(element) {
+      const headerRect = header3d.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
+      return {
+        x: rect.left - headerRect.left,
+        y: rect.top - headerRect.top,
+        width: rect.width,
+        height: rect.height
+      };
+    }
+
+    // Get center of header text relative to header-3d
+    function getHeaderCenter() {
+      const rect = getRelativeRect(headerText);
+      return {
+        x: rect.x + rect.width / 2,
+        y: rect.y + rect.height / 2
+      };
+    }
+    // Get center of planet relative to header-3d
+    function getJupiterCenter() {
+      const rect = getRelativeRect(planet3d);
+      return {
+        x: rect.x + rect.width / 2,
+        y: rect.y + rect.height / 2
+      };
+    }
+
+    // Resize and position the canvas to cover header-3d
+    function resizeParticlesCanvas() {
+      const rect = header3d.getBoundingClientRect();
+      particlesCanvas.width = Math.round(rect.width);
+      particlesCanvas.height = Math.round(rect.height);
+      particlesCanvas.style.left = '0px';
+      particlesCanvas.style.top = '0px';
+      particlesCanvas.style.width = rect.width + 'px';
+      particlesCanvas.style.height = rect.height + 'px';
+    }
+    window.addEventListener('resize', resizeParticlesCanvas);
+    if (window.ResizeObserver) {
+      new ResizeObserver(resizeParticlesCanvas).observe(header3d);
+    }
+    resizeParticlesCanvas();
+
+    class Satellite3D {
+      constructor(center, planetRadius, theta, phi, color, angularSpeed) {
+        this.center = { ...center };
+        this.planetRadius = planetRadius;
+        this.orbitRadius = planetRadius * 0.93; // smaller orbit radius
+        this.theta = theta; // longitude
+        this.phi = phi;     // latitude
+        this.color = color;
+        this.size = 2.2 + Math.random() * 1.1; // smaller satellite size
+        this.angularSpeed = angularSpeed; // constant per satellite
+        this.state = 'idle';
+        this.x = center.x;
+        this.y = center.y;
+        this.z = 0;
+        this.target = { x: this.x, y: this.y };
+        this.opacity = 1;
+      }
+      update(center, tilt) {
+        if (this.state === 'toOrbit') {
+          // Move toward planet center
+          const dx = this.target.x - this.x;
+          const dy = this.target.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const ease = 0.13 + 0.07 * Math.random();
+          if (dist > 4) {
+            this.x += dx * ease;
+            this.y += dy * ease;
+          } else {
+            this.x = this.target.x;
+            this.y = this.target.y;
+            this.state = 'orbit';
+          }
+        } else if (this.state === 'orbit') {
+          // 3D orbit: advance theta at constant speed, REVERSED direction
+          this.theta -= this.angularSpeed;
+          // Spherical to Cartesian
+          const r = this.orbitRadius;
+          // Apply tilt to the orbit (rotate phi by tilt)
+          const phiT = this.phi + tilt;
+          const x3d = r * Math.sin(phiT) * Math.cos(this.theta);
+          const y3d = r * Math.cos(phiT);
+          const z3d = r * Math.sin(phiT) * Math.sin(this.theta);
+          // Simple perspective projection
+          const fov = 420;
+          const viewerZ = r * 2.2;
+          const scale = fov / (viewerZ - z3d);
+          this.x = center.x + x3d * scale;
+          this.y = center.y + y3d * scale;
+          this.z = z3d;
+          // Only show satellites in front (z3d > 0), fade/hide when behind
+          this.opacity = z3d > 0 ? 1 : 0.08;
+        } else if (this.state === 'fromOrbit') {
+          // Move back to header
+          const dx = this.target.x - this.x;
+          const dy = this.target.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const ease = 0.13 + 0.07 * Math.random();
+          if (dist > 4) {
+            this.x += dx * ease;
+            this.y += dy * ease;
+          } else {
+            this.x = this.target.x;
+            this.y = this.target.y;
+            this.state = 'idle';
+          }
+        }
+      }
+      draw(ctx) {
+        if (this.opacity < 0.1) return; // Hide when behind
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 16;
+        ctx.globalAlpha = this.opacity * 0.92;
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    let satellites = null;
+    let satelliteAnimFrame = null;
+    let satelliteState = 'idle';
+    let planetRotationY = 0;
+
+    // Patch: track planet's rotation in animate()
+    const origAnimate = animate;
+    function animateWithRotation() {
+      planetRotationY = sphere.rotation.y;
+      origAnimate();
+    }
+    window.animate = animateWithRotation;
+
+    function startSatellites() {
+      // Hide header text, create 13 satellites from header center
+      const color = getComputedStyle(headerText).color;
+      const center = getHeaderCenter();
+      const planetCenter = getJupiterCenter();
+      const planetRect = getRelativeRect(planet3d);
+      const planetRadius = planetRect.width / 2;
+      satellites = [];
+      const N = 13;
+      const baseSpeed = 0.012; // base angular speed
+      const tilt = Math.PI / 18; // 10deg
+      for (let i = 0; i < N; i++) {
+        // Evenly spaced θ, random φ near equator
+        const theta = (2 * Math.PI * i) / N;
+        const phi = Math.PI / 2 + (Math.random() - 0.5) * Math.PI / 7;
+        // Each satellite gets a slightly different speed, all > planet's speed
+        const angularSpeed = baseSpeed * (1.08 + Math.random() * 0.12);
+        const sat = new Satellite3D(center, planetRadius, theta, phi, color, angularSpeed);
+        // Set target to planet center for suck-in
+        sat.target = { x: planetCenter.x, y: planetCenter.y };
+        sat.state = 'toOrbit';
+        satellites.push(sat);
+      }
+      resizeParticlesCanvas();
+      particlesCanvas.style.display = 'block';
+      headerText.style.visibility = 'hidden';
+      satelliteState = 'toOrbit';
+      animateSatellites3D();
+    }
+
+    function animateSatellites3D() {
+      if (!satellites) return;
+      const ctx = particlesCanvas.getContext('2d');
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      const planetRect = getRelativeRect(planet3d);
+      const planetRadius = planetRect.width / 2;
+      const planetCenter = {
+        x: planetRect.x + planetRadius,
+        y: planetRect.y + planetRadius
+      };
+      const tilt = Math.PI / 18; // 10deg
+      let allArrived = true;
+      satellites.forEach((sat, i) => {
+        if (sat.state === 'toOrbit') {
+          sat.update(planetCenter, tilt);
+          if (sat.state !== 'orbit') allArrived = false;
+        } else if (sat.state === 'orbit') {
+          sat.update(planetCenter, tilt);
+        } else if (sat.state === 'fromOrbit') {
+          sat.update(getHeaderCenter(), tilt);
+          if (sat.state !== 'idle') allArrived = false;
+        }
+        sat.draw(ctx);
+      });
+      if (satelliteState === 'toOrbit' && allArrived) {
+        satellites.forEach((sat, i) => {
+          sat.state = 'orbit';
+        });
+        satelliteState = 'orbit';
+        setTimeout(() => menuButtons.classList.add('active'), 500);
+      }
+      if (satelliteState === 'fromOrbit' && allArrived) {
+        particlesCanvas.style.display = 'none';
+        headerText.style.visibility = 'visible';
+        menuButtons.classList.remove('active');
+        satellites = null;
+        satelliteState = 'idle';
+        return;
+      }
+      satelliteAnimFrame = requestAnimationFrame(animateSatellites3D);
+    }
+
+    function reverseSatellites() {
+      if (!satellites) return;
+      const center = getHeaderCenter();
+      satellites.forEach(sat => {
+        sat.target = { x: center.x, y: center.y };
+        sat.state = 'fromOrbit';
+      });
+      satelliteState = 'fromOrbit';
+      animateSatellites3D();
+    }
+  </script>
+</body>
+</html>

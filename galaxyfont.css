@@ -1,0 +1,12 @@
+@font-face {
+  font-family: 'Unknown Galaxy';
+  src: url('galaxyfont/UnknownGalaxy-axvRa.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Unknown Galaxy';
+  src: url('galaxyfont/UnknownGalaxyItalic-eZdre.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
