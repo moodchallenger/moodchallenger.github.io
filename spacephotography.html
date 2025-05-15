@@ -16,15 +16,50 @@
       --accent: #00eaff;
       --bg: #0a0a23;
       --text: #fff;
+    }    /* Video Background Styles */
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      overflow: hidden;
+      background: #0a0a23;
+    }    .video-background video {
+      position: absolute;
+      min-width: 100%;
+      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      opacity: 0.9; /* Increased opacity for better visibility */
+      filter: brightness(1.2) contrast(1.1); /* Increased brightness */
     }
-    html, body {
+
+    /* Add a lighter overlay to maintain readability while showing more of the video */
+    .video-background::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 35, 0.35); /* Reduced overlay opacity by 50% */
+    }html, body {
       height: 100%;
       margin: 0;
       padding: 0;
-      background: var(--bg);
+      background: transparent;
       color: var(--text);
       font-family: 'Roboto', Arial, sans-serif;
       overflow-x: hidden;
+      position: relative;
     }
     body {
       min-height: 100vh;
@@ -42,14 +77,14 @@
       letter-spacing: 2px;
       color: var(--accent);
       text-shadow: 0 2px 20px #00eaff99;
-    }
-    .slider-container {
-      width: 100vw;
+    }    .slider-container {      width: 100vw;
       display: flex;
       flex-direction: column;
       align-items: center;
       perspective: var(--slide-perspective);
-      margin-bottom: 2rem;
+      margin: 0;
+      position: relative;
+      z-index: 1;
     }
     .slider {
       position: relative;
@@ -217,18 +252,17 @@
       padding: 2rem 0 1rem 0;
       letter-spacing: 1px;
       background: none;
-    }
-    .header-3d {
+    }    .header-3d {
       display: flex;
       align-items: center;
-      justify-content: center;
-      max-width: 900px;
-      width: 100%;
-      margin: 2rem auto 2rem auto;
+      justify-content: center;      max-width: 1500px;      width: 100%;
+      margin: 0 auto 0 auto;
       gap: 0;
       position: relative;
-      z-index: 2;
+      z-index: 0;
       height: auto;
+      overflow: visible;
+      padding: 2rem 2rem;
     }
     @media (max-width: 600px) {
       .header-3d {
@@ -253,7 +287,8 @@
       flex-shrink: 0;
       pointer-events: auto !important;
       cursor: pointer !important;
-      z-index: 1000 !important;
+      z-index: 2 !important;
+      position: relative;
     }
     .planet-3d canvas {
       width: 100% !important;
@@ -277,7 +312,7 @@
       font-family: 'Unknown Galaxy', 'Audiowide', 'Orbitron', sans-serif;
       font-size: 3rem;
       color: var(--accent);
-      text-shadow: 0 2px 20px #00eaff99;
+      text-shadow: 0 2px 20px #033135bd;
       letter-spacing: 2px;
       opacity: 0;
       text-align: center;
@@ -324,29 +359,32 @@
       height: 100%;
       z-index: 2 !important;
       display: none;
-    }
-    .menu-buttons {
+    }    .menu-buttons {
       position: absolute;
-      right: 0;
+      left: 57%;
       top: 50%;
-      transform: translateY(-50%);
-      margin-left: 0;
+      transform: translate(-50%, -50%);
+      margin: 0 auto;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.6s cubic-bezier(.77,0,.18,1);
+      transition: none;
+      display: flex;
       justify-content: center;
       align-items: center;
       flex-shrink: 0;
       flex-grow: 0;
-      z-index: 1 !important;
-    }
-    .menu-buttons.active {
+      z-index: 3 !important;
+    }    .menu-buttons.active {
       opacity: 1;
       pointer-events: auto;
       position: absolute;
-      right: 0;
+      left: 57%;
       top: 50%;
-      transform: translateY(-50%);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.6s cubic-bezier(.77,0,.18,1);
+    }
+    .menu-buttons a {
+      text-decoration: none;
     }
     .menu-btn {
       font-family: 'Roboto', Arial, sans-serif;
@@ -358,7 +396,7 @@
       padding: 0.5rem 1.2rem;
       border-radius: 8px;
       transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
-      box-shadow: 0 2px 12px #00eaff6f;
+      box-shadow: 0 2px 12px #012124b8;
       margin: 0 0.2rem;
     }
     .menu-btn:hover {
@@ -369,17 +407,21 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 </head>
-<body>
+<body>  <div class="video-background">
+    <video autoplay muted loop playsinline>
+      <source src="/images/blackhole.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
   <div class="header-3d">
     <div class="planet-3d" id="planet3d"></div>
     <canvas id="header-particles-canvas"></canvas>
-    <div class="header-title-3d" id="headerTitle3d">Moodchallenger</div>
-    <div class="menu-buttons" id="menuButtons">
-      <button class="menu-btn">Home</button>
-      <button class="menu-btn">Blog</button>
-      <button class="menu-btn">Gallery</button>
-      <button class="menu-btn">About</button>
-      <button class="menu-btn">Contact</button>
+    <div class="header-title-3d" id="headerTitle3d">Moodchallenger</div>    <div class="menu-buttons" id="menuButtons">
+      <a href="index.html"><button class="menu-btn">Home</button></a>
+      <a href="#blog"><button class="menu-btn">Blog</button></a>
+      <a href="gallery.html"><button class="menu-btn">Gallery</button></a>
+      <a href="about.html"><button class="menu-btn">About</button></a>
+      <a href="contact.html"><button class="menu-btn">Contact</button></a>
     </div>
   </div>
   <div class="slider-container">
@@ -499,11 +541,16 @@
     // Camera
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); // aspect 1:1
     camera.position.z = 2.5;
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer({ 
+      alpha: true, 
+      antialias: true,
+      preserveDrawingBuffer: true
+    });
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(size, size);
-    renderer.outputEncoding = THREE.sRGBEncoding; // Ensure correct color space
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.sortObjects = true;
     container.appendChild(renderer.domElement);
     // Make planet3d clickable (ensure pointer events and cursor)
     container.style.pointerEvents = 'auto';
@@ -516,16 +563,52 @@
     });
     const material = new THREE.MeshStandardMaterial({
       map: jupiterTexture,
-      metalness: 0.1, // Add some reflectivity
-      roughness: 0.75 // Not too shiny, not too matte
+      metalness: 0.1,
+      roughness: 0.75,
+      transparent: false,
+      depthWrite: true,
+      depthTest: true
     });
     // Sphere geometry (add this before creating the mesh)
     const geometry = new THREE.SphereGeometry(1, 64, 64);
-    // Mesh
+
+    // Create a group to hold both spheres
+    const planetGroup = new THREE.Group();
+    
+    // Create Jupiter sphere
     const sphere = new THREE.Mesh(geometry, material);
-    // Tilt the axis by 10 degrees
-    sphere.rotation.z = Math.PI / 18;
-    scene.add(sphere);
+    
+    // Create transparent sphere overlay with modified settings
+    const transparentMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.05,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending
+    });
+    
+    const transparentSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.1, 64, 64),
+      transparentMaterial
+    );
+    
+    // Add both spheres to the group
+    planetGroup.add(sphere);
+    planetGroup.add(transparentSphere);
+    
+    // Set render order to ensure proper transparency
+    sphere.renderOrder = 1;
+    transparentSphere.renderOrder = 2;
+    
+    // Tilt the whole group
+    planetGroup.rotation.z = Math.PI / 18;
+    scene.add(planetGroup);
+    
+    // Ensure renderer handles transparency correctly
+    renderer.sortObjects = true;
+    
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Slightly reduced for contrast
     scene.add(ambientLight);
@@ -535,7 +618,7 @@
     // Animation
     function animate() {
       requestAnimationFrame(animate);
-      sphere.rotation.y += 0.01;
+      planetGroup.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
     animate();
@@ -556,14 +639,15 @@
     // Also observe container size changes
     if (window.ResizeObserver) {
       new ResizeObserver(resizePlanet).observe(container);
-    }
-
-    // Fix: ensure planet3d click handler is attached to the correct element
+    }    // Toggle menu visibility on planet click
+    let isMenuVisible = false;
     document.getElementById('planet3d').addEventListener('click', () => {
-      if (satelliteState === 'idle') {
-        startSatellites();
-      } else if (satelliteState === 'orbit') {
-        reverseSatellites();
+      isMenuVisible = !isMenuVisible;
+      headerText.style.visibility = isMenuVisible ? 'hidden' : 'visible';
+      if (isMenuVisible) {
+        menuButtons.classList.add('active');
+      } else {
+        menuButtons.classList.remove('active');
       }
     });
 
@@ -620,91 +704,128 @@
     }
     resizeParticlesCanvas();
 
-    class Satellite3D {
-      constructor(center, planetRadius, theta, phi, color, angularSpeed) {
+    class Satellite3D {      constructor(center, planetRadius, theta, phi, color, angularSpeed) {
         this.center = { ...center };
         this.planetRadius = planetRadius;
-        this.orbitRadius = planetRadius * 0.93; // smaller orbit radius
-        this.theta = theta; // longitude
-        this.phi = phi;     // latitude
-        this.color = color;
-        this.size = 2.2 + Math.random() * 1.1; // smaller satellite size
-        this.angularSpeed = angularSpeed; // constant per satellite
-        this.state = 'idle';
+        this.theta = theta;
+        this.phi = phi;
+        this.color = '#ffffff';
+        this.size = 1.2 + Math.random() * 0.8;
+        this.dTheta = (Math.random() - 0.5) * 0.015;
+        this.dPhi = (Math.random() - 0.5) * 0.01;
         this.x = center.x;
         this.y = center.y;
         this.z = 0;
-        this.target = { x: this.x, y: this.y };
         this.opacity = 1;
-      }
-      update(center, tilt) {
-        if (this.state === 'toOrbit') {
-          // Move toward planet center
-          const dx = this.target.x - this.x;
-          const dy = this.target.y - this.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const ease = 0.13 + 0.07 * Math.random();
-          if (dist > 4) {
-            this.x += dx * ease;
-            this.y += dy * ease;
-          } else {
-            this.x = this.target.x;
-            this.y = this.target.y;
-            this.state = 'orbit';
-          }
-        } else if (this.state === 'orbit') {
-          // 3D orbit: advance theta at constant speed, REVERSED direction
-          this.theta -= this.angularSpeed;
-          // Spherical to Cartesian
-          const r = this.orbitRadius;
-          // Apply tilt to the orbit (rotate phi by tilt)
-          const phiT = this.phi + tilt;
-          const x3d = r * Math.sin(phiT) * Math.cos(this.theta);
-          const y3d = r * Math.cos(phiT);
-          const z3d = r * Math.sin(phiT) * Math.sin(this.theta);
-          // Simple perspective projection
-          const fov = 420;
-          const viewerZ = r * 2.2;
-          const scale = fov / (viewerZ - z3d);
-          this.x = center.x + x3d * scale;
-          this.y = center.y + y3d * scale;
-          this.z = z3d;
-          // Only show satellites in front (z3d > 0), fade/hide when behind
-          this.opacity = z3d > 0 ? 1 : 0.08;
-        } else if (this.state === 'fromOrbit') {
-          // Move back to header
-          const dx = this.target.x - this.x;
-          const dy = this.target.y - this.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const ease = 0.13 + 0.07 * Math.random();
-          if (dist > 4) {
-            this.x += dx * ease;
-            this.y += dy * ease;
-          } else {
-            this.x = this.target.x;
-            this.y = this.target.y;
-            this.state = 'idle';
-          }
+      }      update(center, tilt) {
+        // Update orbital position
+        this.theta += this.dTheta;
+        this.phi += this.dPhi;
+        
+        // Bounce off poles to keep satellites on sphere
+        if (this.phi < 0.1) {
+          this.phi = 0.1;
+          this.dPhi *= -1;
+        } else if (this.phi > Math.PI - 0.1) {
+          this.phi = Math.PI - 0.1;
+          this.dPhi *= -1;
         }
+        
+        const sphereRadius = this.planetRadius * 1.1;
+        
+        // Convert spherical to Cartesian coordinates
+        const x3d = sphereRadius * Math.sin(this.phi) * Math.cos(this.theta);
+        const y3d = sphereRadius * Math.cos(this.phi);
+        const z3d = sphereRadius * Math.sin(this.phi) * Math.sin(this.theta);
+        
+        // Simple perspective projection
+        const fov = 420;
+        const viewerZ = sphereRadius * 2.2;
+        const scale = fov / (viewerZ - z3d);
+        
+        this.x = center.x + x3d * scale;
+        this.y = center.y + y3d * scale;
+        this.z = z3d;
+        
+        // Fade based on z position
+        this.opacity = z3d > 0 
+          ? Math.min(1, 0.5 + (z3d / sphereRadius) * 0.5)
+          : Math.min(0.5, 0.3 + Math.abs(z3d / sphereRadius) * 0.2);
       }
       draw(ctx) {
-        if (this.opacity < 0.1) return; // Hide when behind
+        if (this.opacity < 0.1) return;
+        
+        const planetCenter = getJupiterCenter();
+        const distFromCenter = Math.sqrt(
+          Math.pow(this.x - planetCenter.x, 2) + 
+          Math.pow(this.y - planetCenter.y, 2)
+        );
+        
+        // Don't draw if satellite is behind the planet
+        if (distFromCenter < this.planetRadius && this.z < 0) {
+          return; // Skip drawing entirely when behind the planet
+        }
+        
         ctx.save();
+        
+        // Calculate visual size based on z-position
+        const baseSize = this.size;
+        const sizeScale = (this.z >= 0) ? 
+          1 + (this.z / this.planetRadius * 0.2) : 
+          1 - (Math.abs(this.z) / this.planetRadius * 0.1);
+        const visualSize = baseSize * sizeScale;
+          // Enhance brightness with glow effect
+        if (this.z < 0) {
+          // Behind but not occluded by planet
+          ctx.globalAlpha = this.opacity * 0.6;
+          ctx.shadowBlur = 8;
+        } else {
+          // In front
+          ctx.globalAlpha = this.opacity;
+          ctx.shadowBlur = 12;
+        }
+        
+        // Draw bright core
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 16;
-        ctx.globalAlpha = this.opacity * 0.92;
+        ctx.arc(this.x, this.y, visualSize, 0, Math.PI * 2);
+        ctx.shadowColor = '#80ffff'; // Bright cyan glow
+        ctx.fillStyle = '#ffffff'; // White core for extra brightness
+        ctx.fill();
+        
+        // Add outer glow
+        ctx.globalAlpha *= 0.7;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, visualSize * 1.5, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.restore();
       }
     }
 
-    let satellites = null;
+    let satellites = [];
+    let satelliteState = 'active';
     let satelliteAnimFrame = null;
-    let satelliteState = 'idle';
-    let planetRotationY = 0;
+    const N = 20; // Number of satellites
+    
+    function initializeSatellites() {
+      const planetRect = getRelativeRect(planet3d);
+      const planetRadius = planetRect.width / 2;
+      const planetCenter = getJupiterCenter();
+      
+      for (let i = 0; i < N; i++) {
+        const theta = (2 * Math.PI * i) / N;
+        const phi = Math.acos(2 * i / N - 1);
+        const sat = new Satellite3D(planetCenter, planetRadius, theta, phi);
+        satellites.push(sat);
+      }
+      
+      // Start animation
+      particlesCanvas.style.display = 'block';
+      animateSatellites3D();
+    }
+    
+    // Start satellites immediately
+    initializeSatellites();
 
     // Patch: track planet's rotation in animate()
     const origAnimate = animate;
@@ -721,14 +842,13 @@
       const planetCenter = getJupiterCenter();
       const planetRect = getRelativeRect(planet3d);
       const planetRadius = planetRect.width / 2;
-      satellites = [];
-      const N = 13;
+      satellites = [];    const N = 20; // More satellites for better coverage
       const baseSpeed = 0.012; // base angular speed
       const tilt = Math.PI / 18; // 10deg
       for (let i = 0; i < N; i++) {
-        // Evenly spaced θ, random φ near equator
+        // Evenly spaced θ, random φ near equator        // Distribute satellites more evenly across the sphere
         const theta = (2 * Math.PI * i) / N;
-        const phi = Math.PI / 2 + (Math.random() - 0.5) * Math.PI / 7;
+        const phi = Math.acos(2 * i / N - 1); // Better distribution across latitude
         // Each satellite gets a slightly different speed, all > planet's speed
         const angularSpeed = baseSpeed * (1.08 + Math.random() * 0.12);
         const sat = new Satellite3D(center, planetRadius, theta, phi, color, angularSpeed);
@@ -742,47 +862,20 @@
       headerText.style.visibility = 'hidden';
       satelliteState = 'toOrbit';
       animateSatellites3D();
-    }
-
-    function animateSatellites3D() {
-      if (!satellites) return;
+    }    function animateSatellites3D() {
       const ctx = particlesCanvas.getContext('2d');
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      
       const planetRect = getRelativeRect(planet3d);
       const planetRadius = planetRect.width / 2;
-      const planetCenter = {
-        x: planetRect.x + planetRadius,
-        y: planetRect.y + planetRadius
-      };
-      const tilt = Math.PI / 18; // 10deg
-      let allArrived = true;
-      satellites.forEach((sat, i) => {
-        if (sat.state === 'toOrbit') {
-          sat.update(planetCenter, tilt);
-          if (sat.state !== 'orbit') allArrived = false;
-        } else if (sat.state === 'orbit') {
-          sat.update(planetCenter, tilt);
-        } else if (sat.state === 'fromOrbit') {
-          sat.update(getHeaderCenter(), tilt);
-          if (sat.state !== 'idle') allArrived = false;
-        }
+      const planetCenter = getJupiterCenter();
+      const tilt = Math.PI / 18;
+      
+      satellites.forEach(sat => {
+        sat.update(planetCenter, tilt);
         sat.draw(ctx);
       });
-      if (satelliteState === 'toOrbit' && allArrived) {
-        satellites.forEach((sat, i) => {
-          sat.state = 'orbit';
-        });
-        satelliteState = 'orbit';
-        setTimeout(() => menuButtons.classList.add('active'), 500);
-      }
-      if (satelliteState === 'fromOrbit' && allArrived) {
-        particlesCanvas.style.display = 'none';
-        headerText.style.visibility = 'visible';
-        menuButtons.classList.remove('active');
-        satellites = null;
-        satelliteState = 'idle';
-        return;
-      }
+      
       satelliteAnimFrame = requestAnimationFrame(animateSatellites3D);
     }
 
