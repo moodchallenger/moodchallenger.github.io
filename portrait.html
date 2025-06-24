@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Realistic Falling Maple Leaves</title>
+  <style>
+    body, html {
+      margin: 0;
+      overflow: hidden;
+      background: #f0f8ff;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Load your custom leaf image
+const leafImage = new Image();
+leafImage.src = 'images/mapple-leaf.png'; // Your image file
+
+const NUM_LEAVES = 500;
+const GRAVITY = 0.1;
+const WIND = 0.02;
+const DRAG = 0.99;
+
+const leaves = [];
+
+class Leaf {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = -Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 1;
+    this.vy = Math.random() * 2;
+    this.size = 20 + Math.random() * 20;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+    this.angle = Math.random() * Math.PI * 2;
+  }
+
+  update() {
+    // Apply physics
+    this.vy += GRAVITY;
+    this.vx += (Math.random() - 0.5) * WIND;
+    this.vx *= DRAG;
+    this.vy *= DRAG;
+
+    // Horizontal swaying motion
+    this.angle += 0.05;
+    this.x += Math.sin(this.angle) * 0.5;
+
+    // Position update
+    this.x += this.vx;
+    this.y += this.vy;
+    this.rotation += this.rotationSpeed;
+
+    // Reset if off-screen
+    if (this.y > canvas.height || this.x < -50 || this.x > canvas.width + 50) {
+      this.reset();
+    }
+  }
+
+  draw(ctx) {
+    ctx.save();
+
+    // Move to leaf position
+    ctx.translate(this.x, this.y);
+
+    // Twist & bend effect using skew and scale
+    const skewX = 0.2 * Math.sin(this.angle);         // horizontal roll
+    const skewY = 0.1 * Math.cos(this.angle * 2);     // vertical twist
+    const scaleY = 1 + 0.05 * Math.sin(this.angle * 2); // flutter stretch
+
+    // Apply transformation matrix
+    ctx.transform(Math.cos(this.rotation), skewX, skewY, scaleY, 0, 0);
+
+    // Draw the leaf centered
+    ctx.drawImage(leafImage, -this.size / 2, -this.size / 2, this.size, this.size);
+
+    ctx.restore();
+  }
+}
+
+// Create leaf instances
+for (let i = 0; i < NUM_LEAVES; i++) {
+  leaves.push(new Leaf());
+}
+
+// Animation loop
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const leaf of leaves) {
+    leaf.update();
+    leaf.draw(ctx);
+  }
+  requestAnimationFrame(animate);
+}
+
+// Start animation after image is loaded
+leafImage.onload = () => {
+  animate();
+};
+</script>
+</body>
+</html>
+

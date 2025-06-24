@@ -3,336 +3,766 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moodchallenger - Nature Photography Blog</title>
-    <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
+    <title>Nature Blog - Immersive Experience</title>
+    <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Georgia', serif;
-            margin: 0;
-            padding: 0;
-            background-color: #e0f7fa;
-            color: #333;
-            animation: fadeIn 1.5s ease-in-out;
+        @font-face {
+            font-family: 'Green House';
+            src: url('fonts/Green House.otf') format('opentype');
+        }
+        
+        :root {
+            --nature-green: rgb(77, 59, 9);
+            --leaf-accent: #36ce1c;
+            --earth-brown: #59442b;
+            --sky-blue: #7ec0ee;
+            --text-color: #282626;
         }
 
-        #background-video {
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            background-color: #f5f5f5;
+            height: 100%;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden !important;
+        }
+
+        #three-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            z-index: -1; /* Ensure the video is behind all content */
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
+            z-index: 1;
+            background: linear-gradient(to bottom, #09130c, #1b2921);
+            transition: opacity 1s ease;
         }
 
-        header {
+        #three-container.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dots-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 2;
+        }
+
+        main {
+            position: relative;
+            z-index: 3;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sections-container {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .hero-section, 
+        .motivation-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s cubic-bezier(.4,2,.6,1), visibility 1s cubic-bezier(.4,2,.6,1);
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+
+        .hero-section.zoom-out {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s cubic-bezier(.4,2,.6,1), visibility 1s cubic-bezier(.4,2,.6,1);
+        }
+
+        .motivation-section {
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1;
+        }
+
+        .motivation-section.visible {
+            opacity: 1;
+            visibility: visible;
+            z-index: 3;
+            transition: opacity 1s cubic-bezier(.4,2,.6,1), visibility 1s cubic-bezier(.4,2,.6,1);
+        }
+
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: block;
+            transition: opacity 1s cubic-bezier(.4,2,.6,1), visibility 1s cubic-bezier(.4,2,.6,1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .site-header.hide-nav {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s cubic-bezier(.4,2,.6,1), visibility 1s cubic-bezier(.4,2,.6,1);
+        }
+
+        .main-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #044a07;
-            color: #fff;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        header .logo {
+        .logo {
             display: flex;
             align-items: center;
+            gap: 0.5rem;
+            font-family: 'Green House', 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
         }
 
-        header .logo img {
-            height: 40px;
-            margin-right: 10px;
-            filter: drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.8)); /* Use drop-shadow instead of box-shadow */
+        .logo-img {
+            height: 2.1rem;
+            width: auto;
+            display: inline-block;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-family: 'Major Mono Display', monospace;
-            animation: slideInLeft 1.5s ease-in-out;
-        }
-
-        nav {
+        .nav-links {
             display: flex;
-            align-items: center;
-        }
-
-        nav ul {
+            gap: 2rem;
             list-style: none;
-            padding: 0;
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        nav ul li {
             margin: 0;
+            padding: 0;
         }
 
-        nav ul li a {
-            color: #fff;
+        .nav-links a {
+            color: white;
             text-decoration: none;
-            font-size: 1.2rem;
-            transition: color 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            color: #d85808;
-        }
-
-        .hero {
-    background-image: url('images/nature2.webp'); /* Use a static image as a fallback */
-    background-size: cover;
-    background-position: top center; /* Align the image to the top */
-    padding: 10rem 0; /* Increase the padding to make the hero area bigger */
-    text-align: center;
-    color: #fffb00;
-    animation: zoomIn 1.5s ease-in-out;
-    position: relative; /* Ensure the pseudo-element is contained */
-    overflow: hidden; /* Ensure the pseudo-element is contained */
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Ensure the layer is behind the text but above the background image */
-}
-
-.hero h2 {
-    font-size: 3rem;
-    margin: 0;
-    animation: fadeInUp 2s ease-in-out;
-    position: relative; /* Ensure the text is above the semi-transparent layer */
-    z-index: 2; /* Ensure the text is above the semi-transparent layer */
-}
-
-.hero p {
-    font-size: 1.5rem;
-    animation: fadeInUp 2.5s ease-in-out;
-    position: relative; /* Ensure the text is above the semi-transparent layer */
-    z-index: 2; /* Ensure the text is above the semi-transparent layer */
-}
-
-
-        main {
-            padding: 2rem 0;
-        }
-
-        article {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-            animation: fadeInUp 2s ease-in-out;
-        }
-
-        article h2 {
-            color: #044a07;
-        }
-
-        article p {
-            color: #555;
-        }
-
-        button {
-            background-color: #d85808;
-            color: #fff;
-            border: none;
-            padding: 0.7rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            animation: bounceIn 1.5s ease-in-out;
-        }
-
-        button:hover {
-            background-color: #042f06;
-            transform: scale(1.05);
-        }
-
-        footer {
-            background-color: #044a07;
-            color: #fff;
-            text-align: center;
-            padding: 1rem 0;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            animation: slideInUp 1.5s ease-in-out;
-        }
-
-        /* Hamburger Menu Styles */
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-        }
-
-        .hamburger div {
-            width: 25px;
-            height: 3px;
-            background-color: #fff;
-            margin: 4px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
-        .hamburger:hover div {
-            background-color: #d85808;
+        .nav-links a:hover {
+            background: #0d4706;
+            color: white;
+            transform: translateY(-2px);
         }
 
-        /* Mobile Responsive Styles */
+        .hero-section, 
+        .motivation-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .hero-section {
+            z-index: 2;
+            background: transparent;
+            text-align: center;
+            color: white;
+            transform-origin: center;
+        }
+
+        .hero-section.zoom-out {
+            /* Remove scale transform for no zoom effect */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            transition: opacity 1s ease, transform 1.5s ease;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            max-width: 600px;
+            margin: 1.5rem 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .motivation-section {
+            /* Remove scale transform for no zoom effect */
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.95);
+            opacity: 0;
+            visibility: hidden;
+            min-height: 100vh;
+            height: 100vh;
+            padding: 0;
+            text-align: center;
+            color: rgb(135, 132, 132);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .motivation-section.visible {
+            opacity: 1;
+            visibility: visible;
+            filter: blur(0px) brightness(1);
+            pointer-events: auto;
+            transition: opacity 0.9s cubic-bezier(.4,2,.6,1), visibility 0.9s cubic-bezier(.4,2,.6,1), filter 0.9s cubic-bezier(.4,2,.6,1);
+        }
+
+        .motivation-section h2,
+        .motivation-section p {
+            opacity: 1;
+            transform: none;
+            transition: none;
+            max-width: 500px;
+            line-height: 1.7;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .motivation-section h2 {
+            font-size: 1rem !important;
+            font-family: 'Playfair Display', 'Georgia', serif !important;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+        .motivation-section p {
+            font-size: 0.75rem !important;
+        }
         @media (max-width: 768px) {
-            nav ul {
-                display: none;
+            .motivation-section h2 {
+                font-size: 0.7rem !important;
+            }
+            .motivation-section p {
+                font-size: 0.5rem !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 3rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .main-nav {
                 flex-direction: column;
-                width: 100%;
-                background-color: #044a07;
-                position: absolute;
-                top: 60px;
-                left: 0;
                 text-align: center;
             }
 
-            nav ul li {
-                margin: 1rem 0;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            nav.active ul {
-                display: flex;
+            .nav-links {
+                margin-top: 1rem;
+                flex-direction: column;
+                gap: 1rem;
             }
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+        body, html {
+            overscroll-behavior: contain;
+        }
+
+        main, .sections-container {
+            overflow: hidden !important;
+        }
+
+        .sunflower-circle-container {
+            position: relative;
+            width: 520px;
+            height: 520px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4;
+            pointer-events: none;
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+        }
+
+        .sunflower-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            background: rgba(0,0,0,0.7);
+            border-radius: 1.2rem;
+            padding: 0;
+            box-shadow: 0 4px 32px 0 rgba(0,0,0,0.18);
+            pointer-events: auto;
+            width: 260px;
+            height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .sunflower-center-text h2, .sunflower-center-text p {
+            margin: 0.7rem 0;
+            padding: 0 1.1rem;
+        }
+
+        @media (max-width: 600px) {
+            .sunflower-center-text {
+                width: 140px;
+                height: 140px;
+                padding: 0;
             }
-            to {
-                opacity: 1;
+            .sunflower-center-text h2, .sunflower-center-text p {
+                padding: 0 0.3rem;
             }
         }
 
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-            }
-            to {
-                transform: translateX(0);
-            }
+        .sunflower-petals {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.5);
-            }
-            to {
-                transform: scale(1);
-            }
+        .sunflower-petal {
+            position: absolute;
+            left: 50%; top: 50%;
+            transform-origin: 50% 80%;
+            transition: filter 0.3s, transform 0.4s cubic-bezier(.4,2,.6,1);
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.18));
+            overflow: visible;
+            pointer-events: auto;
+            will-change: transform, filter;
+            background: #222;
+            box-shadow: 0 2px 12px #0003;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Enable 3D children */
+            transform-style: preserve-3d;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .sunflower-petal img {
+            display: block;
+            max-width: 120px;
+            max-height: 160px;
+            width: auto;
+            height: auto;
+            /* No border-radius for rectangular image */
+            /* Bend to circle using skewY, but only visually */
+            transform: skewY(-16deg);
+            transition: transform 0.4s cubic-bezier(.4,2,.6,1);
+            pointer-events: none;
+            box-shadow: 0 2px 12px #0003;
+            background: #222;
         }
 
-        @keyframes bounceIn {
-            from {
-                transform: scale(0.5);
-            }
-            to {
-                transform: scale(1);
-            }
+        .sunflower-petal:hover img,
+        .sunflower-petal:focus img {
+            transform: scale(1.18) skewY(-16deg);
         }
 
-        @keyframes slideInUp {
-            from {
-                transform: translateY(100%);
-            }
-            to {
-                transform: translateY(0);
+        @media (max-width: 600px) {
+            .sunflower-petal img {
+                max-width: 60px;
+                max-height: 80px;
             }
         }
     </style>
 </head>
 <body>
-    <video autoplay muted loop id="background-video">
-        <source src="images/background3.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <header>
-        <div class="container logo">
-            <img src="images/logo.png" alt="Moodchallenger Logo">
-            <h1>Moodchallenger</h1>
-        </div>
-        
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-            <div class="hamburger" onclick="toggleMenu()">
-                <div></div>
-                <div></div>
-                <div></div>
+    <div id="three-container"></div>
+    <div class="dots-container"></div>
+    
+    <header class="site-header">
+        <nav class="main-nav">
+            <div class="logo">
+                <img src="images/logo.png" alt="Logo" class="logo-img" style="vertical-align: middle; height: 2.1rem; margin-right: 0.5rem; display: inline-block;">
+                Moodchallenger
             </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                 <li><a href="#Blog">Blog</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                 <li><a href="#about">About</a></li>
+                  <li><a href="#contact">Contact</a></li>
+            </ul>
         </nav>
     </header>
-    <div class="hero">
-        <div class="container">
-            <h2>Let's Explore the Beauty Shall We? </h2>
-        </div>
-    </div>
+
     <main>
-        <div class="container">
-            <article>
-                <h2>Our Latest Nature Photography</h2>
-                <p>Discover stunning nature photographs and stories behind them. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.</p>
-                <img src=images/nature.jpg alt="Nature Photography" style="width: 100%; border-radius: 8px; margin-top: 1rem; animation: fadeIn 2s ease-in-out;">
-                <button onclick="loadMorePosts()">Load More Posts</button>
-            </article>
-            <div id="additional-posts"></div>
+        <div class="sections-container">
+            <section id="hero" class="hero-section">
+                <div class="hero-content">
+                    <h1>Explore Nature's Beauty</h1>
+                    <p class="subtitle">Discover the wonders of our natural world through immersive stories and stunning photography</p>
+                </div>
+            </section>
+
+            <section id="motivation" class="motivation-section scroll-section">
+                <div class="sunflower-circle-container">
+                    <div class="sunflower-center-text">
+                        <h2>Welcome to My Nature Journey</h2>
+                        <p>From the gentle whisper of leaves in the wind to the majestic peaks touching the clouds, nature has always been my greatest inspiration. Through this blog, I aim to share the raw beauty and profound wisdom found in every corner of our natural world. Each story here is a testament to the incredible diversity of life and the delicate balance that sustains it all. Join me as we explore, learn, and grow in our appreciation for the magnificent tapestry of nature that surrounds us.</p>
+                    </div>
+                    <div class="sunflower-petals"></div>
+                </div>
+            </section>
         </div>
     </main>
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Moodchallenger. All rights reserved.</p>
-        </div>
-    </footer>
+
     <script>
-        function toggleMenu() {
-            const nav = document.querySelector('nav');
-            nav.classList.toggle('active');
+        // --- Falling Leaves from hellohime.html ---
+        let scene, camera, renderer;
+        const leaves = [];
+        const leafCount = 10000;
+        let leafTexture;
+
+        // Helper to parse CSS color (rgb/rgba) and extract color + alpha
+        function getLeafColourAndAlpha() {
+            const cssValue = getComputedStyle(document.documentElement).getPropertyValue('--nature-green').trim();
+            // Match rgb or rgba
+            const match = cssValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+            if (match) {
+                const r = parseInt(match[1], 10) / 255;
+                const g = parseInt(match[2], 10) / 255;
+                const b = parseInt(match[3], 10) / 255;
+                const a = match[4] !== undefined ? parseFloat(match[4]) : 1.0;
+                return { color: new THREE.Color(r, g, b), alpha: a };
+            }
+            // fallback: try hex or named color (no alpha)
+            try {
+                return { color: new THREE.Color(cssValue), alpha: 1.0 };
+            } catch {
+                return { color: new THREE.Color(0.33, 0.26, 0.04), alpha: 1.0 }; // fallback brown
+            }
         }
 
-        function loadMorePosts() {
-            const additionalPosts = document.getElementById('additional-posts');
-            const newPost = document.createElement('article');
-            newPost.innerHTML = `
-                <h2>Another Nature Photography Post</h2>
-                <p>Explore more stunning nature photographs and stories behind them. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.</p>
-                <img src=images/nature1.webp alt="Nature Photography" style="width: 100%; border-radius: 8px; margin-top: 1rem; animation: fadeIn 2s ease-in-out;">
-            `;
-            additionalPosts.appendChild(newPost);
+        function init() {
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(
+                60, window.innerWidth / window.innerHeight, 0.1, 1000
+            );
+            camera.position.z = 100;
+
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('three-container').appendChild(renderer.domElement);
+
+            // Load leaf texture
+            new THREE.TextureLoader().load('images/mapple-leaf.png', (texture) => {
+                leafTexture = texture;
+                leafTexture.encoding = THREE.sRGBEncoding;
+                leafTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+                createLeaves();
+                animate();
+            });
+
+            // Ambient light
+            const light = new THREE.AmbientLight(0xffffff, 1);
+            scene.add(light);
+
+            window.addEventListener('resize', onWindowResize);
         }
+
+        function createLeaves() {
+            const geometry = new THREE.PlaneGeometry(10, 10, 8, 8);
+            const { color, alpha } = getLeafColourAndAlpha();
+            const material = new THREE.MeshBasicMaterial({
+                map: leafTexture,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                alphaTest: 0.2,
+                blending: THREE.NormalBlending,
+                color: color,
+                opacity: alpha
+            });
+
+            for (let i = 0; i < leafCount; i++) {
+                const leaf = new THREE.Mesh(geometry.clone(), material.clone());
+                leaf.position.x = (Math.random() - 0.5) * window.innerWidth;
+                leaf.position.y = Math.random() * window.innerHeight;
+                leaf.position.z = (Math.random() - 0.5) * 200;
+                leaf.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                );
+                leaf.userData.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.2,
+                    -0.3 - Math.random() * 0.2,
+                    (Math.random() - 0.5) * 0.2
+                );
+                leaf.userData.rotSpeed = new THREE.Vector3(
+                    0.002 * (Math.random() - 0.5),
+                    0.002 * (Math.random() - 0.5),
+                    0.002 * (Math.random() - 0.5)
+                );
+                scene.add(leaf);
+                leaves.push(leaf);
+            }
+        }
+
+        function bendLeafGeometry(leaf, time) {
+            const posAttr = leaf.geometry.attributes.position;
+            for (let i = 0; i < posAttr.count; i++) {
+                const y = posAttr.getY(i);
+                const bend = Math.sin(y * 0.5 + time * 2 + leaf.position.x * 0.01) * 0.5;
+                posAttr.setZ(i, bend);
+            }
+            posAttr.needsUpdate = true;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now() * 0.001;
+            leaves.forEach((leaf) => {
+                leaf.position.add(leaf.userData.velocity);
+                leaf.rotation.x += leaf.userData.rotSpeed.x;
+                leaf.rotation.y += leaf.userData.rotSpeed.y;
+                leaf.rotation.z += leaf.userData.rotSpeed.z;
+                leaf.position.x += Math.sin(time + leaf.position.z * 0.1) * 0.1;
+                bendLeafGeometry(leaf, time);
+                if (leaf.position.y < -window.innerHeight / 2) {
+                    leaf.position.y = window.innerHeight / 2 + Math.random() * 100;
+                    leaf.position.x = (Math.random() - 0.5) * window.innerWidth;
+                    leaf.position.z = (Math.random() - 0.5) * 200;
+                }
+            });
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('load', init);
+
+        // --- Section Transition Logic (restored) ---
+        const heroSection = document.querySelector('.hero-section');
+        const motivationSection = document.querySelector('.motivation-section');
+        const siteHeader = document.querySelector('.site-header');
+        let currentSection = 0;
+        let isTransitioning = false;
+
+        function transitionToSection(index) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            if (index === 1) {
+                // Fade out hero and navbar together
+                heroSection.classList.add('zoom-out');
+                if (siteHeader) siteHeader.classList.add('hide-nav');
+                // Fade in second page at the same time (overlap)
+                motivationSection.classList.add('visible');
+            } else {
+                // Fade in hero and navbar together
+                heroSection.classList.remove('zoom-out');
+                if (siteHeader) siteHeader.classList.remove('hide-nav');
+                motivationSection.classList.remove('visible');
+            }
+            currentSection = index;
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 1000);
+        }
+
+        // Handle wheel events (SMOOTH)
+        window.addEventListener('wheel', (e) => {
+            if (isTransitioning) return;
+            // Only trigger if at the top of the page (first section)
+            if (window.scrollY === 0 && e.deltaY > 0 && currentSection === 0) {
+                transitionToSection(1);
+            } else if (currentSection === 1 && e.deltaY < 0) {
+                // If in second section and scrolling up, go back
+                transitionToSection(0);
+            }
+            // Otherwise, let browser handle normal scroll
+        });
+
+        // Handle touch events
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        window.addEventListener('touchend', (e) => {
+            if (isTransitioning) return;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaY = touchStartY - touchEndY;
+            if (Math.abs(deltaY) > 50) {
+                if (deltaY > 0 && currentSection === 0) {
+                    transitionToSection(1);
+                } else if (deltaY < 0 && currentSection === 1) {
+                    transitionToSection(0);
+                }
+            }
+        }, { passive: true });
+
+        // Sunflower Petal Gallery Logic
+        (function() {
+            const imageList = [
+                'images/nature1.webp',
+                'images/nature2.webp',
+                'images/leaf-water.jpg',
+                'images/sunset-temple.jpg',
+                'images/earthlike.jpg',
+                'images/squirrel.webp',
+                'images/saint.webp',
+                'images/bankura Life.jpg',
+                'images/anirban.jpg',
+                'images/cityview.jpeg',
+                'images/night-moon.jpg',
+                'images/night-star.jpg',
+                'images/ant.jpg',
+                'images/kansh.jpg',
+                'images/jupiter.jpg',
+                'images/mars.jpg',
+                'images/moon.webp',
+                'images/nature.jpg',
+            ];
+            const petalsContainer = document.querySelector('.sunflower-petals');
+            if (!petalsContainer) return;
+            petalsContainer.innerHTML = '';
+            // Multi-layer config
+            const layers = [8, 12, 18]; // Number of petals per layer
+            const baseRadius = 160; // px, first layer
+            const layerGap = 45; // px between layers
+            let imgIdx = 0;
+            let petals = [];
+            layers.forEach((count, layerIdx) => {
+                for (let i = 0; i < count && imgIdx < imageList.length; i++, imgIdx++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'sunflower-petal';
+                    petal.tabIndex = 0;
+                    const img = document.createElement('img');
+                    img.src = imageList[imgIdx];
+                    img.alt = `Nature ${imgIdx+1}`;
+                    petal.appendChild(img);
+                    petal.dataset.layer = layerIdx;
+                    petal.dataset.index = i;
+                    petalsContainer.appendChild(petal);
+                    petals.push(petal);
+                }
+            });
+            let angleOffset = 0;
+            let paused = false;
+            function updatePetalPositions() {
+                const container = document.querySelector('.sunflower-circle-container');
+                const w = container.offsetWidth;
+                const h = container.offsetHeight;
+                const minDim = Math.min(w, h);
+                let imgPtr = 0;
+                layers.forEach((count, layerIdx) => {
+                    const r = (minDim/2 - 60) + layerIdx * layerGap;
+                    const offset = (layerIdx % 2 === 1) ? (Math.PI / count) : 0; // brick offset
+                    // 3D dome: tilt petals outward by layer
+                    const maxTilt = 55; // degrees, outermost layer
+                    const tilt = (layerIdx / (layers.length-1)) * maxTilt;
+                    // Each next layer goes behind (negative z)
+                    const zStep = 60; // px, how much each layer goes behind
+                    const z = -(layerIdx) * zStep;
+                    for (let i = 0; i < count && imgPtr < petals.length; i++, imgPtr++) {
+                        const theta = (2 * Math.PI * i / count) + angleOffset + offset;
+                        const x = Math.cos(theta) * r;
+                        const y = Math.sin(theta) * r;
+                        const deg = theta * 180 / Math.PI;
+                        petals[imgPtr].style.transform =
+                            `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateZ(${deg+90}deg) rotateX(${-tilt}deg)`;
+                    }
+                });
+            }
+            function animate() {
+                if (!paused) {
+                    angleOffset += 0.008;
+                }
+                updatePetalPositions();
+                requestAnimationFrame(animate);
+            }
+            petals.forEach((petal) => {
+                petal.addEventListener('mouseenter', () => {
+                    paused = true;
+                    petalsContainer.classList.add('paused');
+                });
+                petal.addEventListener('mouseleave', () => {
+                    paused = false;
+                    petalsContainer.classList.remove('paused');
+                });
+                petal.addEventListener('focus', () => {
+                    paused = true;
+                    petalsContainer.classList.add('paused');
+                });
+                petal.addEventListener('blur', () => {
+                    paused = false;
+                    petalsContainer.classList.remove('paused');
+                });
+            });
+            window.addEventListener('resize', updatePetalPositions);
+            updatePetalPositions();
+            animate();
+        })();
     </script>
 </body>
 </html>

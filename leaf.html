@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bending Instanced Maple Leaves</title>
+  <style>
+    html, body {
+      margin: 0;
+      overflow: hidden;
+      background: #e0f7fa;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+
+<script>
+let scene, camera, renderer, instancedMesh;
+const leafCount = 50000;
+const positions = [], velocities = [], rotations = [], rotSpeeds = [], bendFactors = [];
+const dummy = new THREE.Object3D();
+
+const vertexShader = `
+  attribute float bend;
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+
+    // Apply a sine wave bend on the X-axis (leaf width)
+    vec3 transformed = position;
+    transformed.z += sin(transformed.x * 3.0) * bend;
+
+    // Apply instance transformation
+    vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(transformed, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+const fragmentShader = `
+  uniform: sampler2D map;
+  varying vec2 vUv;
+  void main() {
+    vec4 texColor = texture2D(map, vUv);
+    if (texColor.a < 0.1) discard;
+    gl_FragColor = texColor;
+  }
+`;
+
+function init() {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+  camera.position.z = 100;
+
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  new THREE.TextureLoader().load('images/mapple-leaf.png', texture => {
+    createLeaves(texture);
+    animate();
+  });
+
+  window.addEventListener('resize', onResize);
+}
+
+function createLeaves(texture) {
+  // Plane geometry for leaf
+  const geometry = new THREE.PlaneGeometry(10, 10, 4, 4);
+  const bendAttr = new Float32Array(leafCount);
+  geometry.setAttribute('bend', new THREE.InstancedBufferAttribute(bendAttr, 1));
+
+  // Shader material to allow bending
+  const material = new THREE.ShaderMaterial({
+    uniforms: { map: { value: texture } },
+    vertexShader,
+    fragmentShader,
+    transparent: true,
+    depthWrite: false
+  });
+
+  instancedMesh = new THREE.InstancedMesh(geometry, material, leafCount);
+
+  for (let i = 0; i < leafCount; i++) {
+    const x = (Math.random() - 0.5) * window.innerWidth;
+    const y = Math.random() * window.innerHeight;
+    const z = (Math.random() - 0.5) * 200;
+
+    positions.push(new THREE.Vector3(x, y, z));
+    velocities.push(new THREE.Vector3(
+      (Math.random() - 0.5) * 0.2,
+      -0.3 - Math.random() * 0.2,
+      (Math.random() - 0.5) * 0.2
+    ));
+
+    rotations.push(new THREE.Euler(
+      Math.random() * Math.PI,
+      Math.random() * Math.PI,
+      Math.random() * Math.PI
+    ));
+
+    rotSpeeds.push(new THREE.Vector3(
+      0.002 * (Math.random() - 0.5),
+      0.002 * (Math.random() - 0.5),
+      0.002 * (Math.random() - 0.5)
+    ));
+
+    bendFactors.push(0.2 + Math.random() * 0.5);
+    geometry.attributes.bend.setX(i, bendFactors[i]);
+
+    updateLeafTransform(i);
+  }
+
+  geometry.attributes.bend.needsUpdate = true;
+  scene.add(instancedMesh);
+}
+
+function updateLeafTransform(i) {
+  dummy.position.copy(positions[i]);
+  dummy.rotation.set(
+    rotations[i].x,
+    rotations[i].y,
+    rotations[i].z
+  );
+  dummy.updateMatrix();
+  instancedMesh.setMatrixAt(i, dummy.matrix);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = performance.now() * 0.001;
+
+  for (let i = 0; i < leafCount; i++) {
+    positions[i].add(velocities[i]);
+    positions[i].x += Math.sin(t + positions[i].z * 0.1) * 0.1;
+
+    rotations[i].x += rotSpeeds[i].x;
+    rotations[i].y += rotSpeeds[i].y;
+    rotations[i].z += rotSpeeds[i].z;
+
+    if (positions[i].y < -window.innerHeight / 2) {
+      positions[i].y = window.innerHeight / 2 + Math.random() * 100;
+      positions[i].x = (Math.random() - 0.5) * window.innerWidth;
+      positions[i].z = (Math.random() - 0.5) * 200;
+    }
+
+    updateLeafTransform(i);
+  }
+
+  instancedMesh.instanceMatrix.needsUpdate = true;
+  renderer.render(scene, camera);
+}
+
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+init();
+</script>
+</body>
+</html>
+
+

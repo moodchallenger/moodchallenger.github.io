@@ -37,7 +37,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(0, 0, 0, 0.4); /* translucent */
+    background: rgba(0, 0, 0, 0.4);
     z-index: 10;
     color: rgb(218, 214, 214);
     backdrop-filter: blur(6px);
@@ -79,7 +79,7 @@
   text-align: center;
   color: rgb(11, 11, 11);
   z-index: 5;
-  pointer-events: none; /* So mouse doesn’t block canvas interaction */
+  pointer-events: none;
 }
 
 .centered-text h1 {
@@ -112,7 +112,6 @@
   <p>Experience the beauty of falling leaves</p>
 </div>
 
-
   <script type="module" src="main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
 
@@ -124,10 +123,8 @@
     const currentScrollY = window.scrollY;
 
     if (currentScrollY > lastScrollY && currentScrollY > 10) {
-      // Scrolling down
       navbar.classList.add('hidden');
     } else {
-      // Scrolling up
       navbar.classList.remove('hidden');
     }
 
@@ -137,11 +134,10 @@
 
 <script>
 let scene, camera, renderer;
-const leaves = [];
-const leafCount = 10000;
+let instancedMesh;
+const leafCount = 50000;
 let leafTexture;
 
-// Init everything
 function init() {
   scene = new THREE.Scene();
 
@@ -154,105 +150,98 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  // Load leaf texture
   new THREE.TextureLoader().load('images/mapple-leaf.png', (texture) => {
-  leafTexture = texture;
-  leafTexture.encoding = THREE.sRGBEncoding;
-  leafTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  createLeaves();
-  animate();
-});
+    leafTexture = texture;
+    leafTexture.encoding = THREE.sRGBEncoding;
+    leafTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    createLeaves();
+    animate();
+  });
 
-  // Ambient light
   const light = new THREE.AmbientLight(0xffffff, 1);
   scene.add(light);
 
   window.addEventListener('resize', onWindowResize);
 }
 
+const dummy = new THREE.Object3D();
+const velocities = [], rotSpeeds = [];
+
 function createLeaves() {
-  const geometry = new THREE.PlaneGeometry(10, 10, 8, 8);
-const material = new THREE.MeshBasicMaterial({
-  map: leafTexture,
-  transparent: true,
-  side: THREE.DoubleSide,
-  depthWrite: false,
-  alphaTest: 0.2,
-  blending: THREE.NormalBlending,
-});
+  const geometry = new THREE.PlaneGeometry(10, 10);
+  const material = new THREE.MeshBasicMaterial({
+    map: leafTexture,
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    alphaTest: 0.2,
+    blending: THREE.NormalBlending,
+  });
+
+  instancedMesh = new THREE.InstancedMesh(geometry, material, leafCount);
 
   for (let i = 0; i < leafCount; i++) {
-  
-    const leaf = new THREE.Mesh(geometry.clone(), material.clone());
+    dummy.position.set(
+      (Math.random() - 0.5) * window.innerWidth,
+      Math.random() * window.innerHeight,
+      (Math.random() - 0.5) * 200
+    );
 
-    // Initial position
-    leaf.position.x = (Math.random() - 0.5) * window.innerWidth;
-    leaf.position.y = Math.random() * window.innerHeight;
-    leaf.position.z = (Math.random() - 0.5) * 200;
-
-    // Initial rotation
-    leaf.rotation.set(
+    dummy.rotation.set(
       Math.random() * Math.PI,
       Math.random() * Math.PI,
       Math.random() * Math.PI
     );
 
-    // Store velocities
-    leaf.userData.velocity = new THREE.Vector3(
+    dummy.updateMatrix();
+    instancedMesh.setMatrixAt(i, dummy.matrix);
+
+    velocities.push(new THREE.Vector3(
       (Math.random() - 0.5) * 0.2,
       -0.3 - Math.random() * 0.2,
       (Math.random() - 0.5) * 0.2
-    );
+    ));
 
-    // Store rotation speeds
-    leaf.userData.rotSpeed = new THREE.Vector3(
+    rotSpeeds.push(new THREE.Vector3(
       0.002 * (Math.random() - 0.5),
       0.002 * (Math.random() - 0.5),
       0.002 * (Math.random() - 0.5)
-    );
-
-    scene.add(leaf);
-    leaves.push(leaf);
+    ));
   }
-}
 
-function bendLeafGeometry(leaf, time) {
-  const posAttr = leaf.geometry.attributes.position;
-  for (let i = 0; i < posAttr.count; i++) {
-    const y = posAttr.getY(i);
-    const bend = Math.sin(y * 0.5 + time * 2 + leaf.position.x * 0.01) * 0.5;
-    posAttr.setZ(i, bend);
-  }
-  posAttr.needsUpdate = true;
+  scene.add(instancedMesh);
 }
 
 function animate() {
+    // Compute scale based on depth (Z distance)
+let z = dummy.position.z;
+let scaleFactor = THREE.MathUtils.clamp(1 - z / 400, 0.2, 3); // closer = larger
+
+dummy.scale.set(scaleFactor, scaleFactor, scaleFactor);
   requestAnimationFrame(animate);
   const time = performance.now() * 0.001;
 
-  leaves.forEach((leaf) => {
-    // Update position
-    leaf.position.add(leaf.userData.velocity);
+  for (let i = 0; i < leafCount; i++) {
+    instancedMesh.getMatrixAt(i, dummy.matrix);
+    dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
 
-    // Flutter effect
-    leaf.rotation.x += leaf.userData.rotSpeed.x;
-    leaf.rotation.y += leaf.userData.rotSpeed.y;
-    leaf.rotation.z += leaf.userData.rotSpeed.z;
+    dummy.position.add(velocities[i]);
+    dummy.rotation.x += rotSpeeds[i].x;
+    dummy.rotation.y += rotSpeeds[i].y;
+    dummy.rotation.z += rotSpeeds[i].z;
+    dummy.position.x += Math.sin(time + dummy.position.z * 0.1) * 0.1;
 
-    // Add wind sway
-    leaf.position.x += Math.sin(time + leaf.position.z * 0.1) * 0.1;
-
-    // Bend mesh to simulate curling
-    bendLeafGeometry(leaf, time);
-
-    // Reset leaf if it falls out of view
-    if (leaf.position.y < -window.innerHeight / 2) {
-      leaf.position.y = window.innerHeight / 2 + Math.random() * 100;
-      leaf.position.x = (Math.random() - 0.5) * window.innerWidth;
-      leaf.position.z = (Math.random() - 0.5) * 200;
+    if (dummy.position.y < -window.innerHeight / 2) {
+      dummy.position.y = window.innerHeight / 2 + Math.random() * 100;
+      dummy.position.x = (Math.random() - 0.5) * window.innerWidth;
+      dummy.position.z = (Math.random() - 0.5) * 200;
     }
-  });
 
+    dummy.updateMatrix();
+    instancedMesh.setMatrixAt(i, dummy.matrix);
+  }
+
+  instancedMesh.instanceMatrix.needsUpdate = true;
   renderer.render(scene, camera);
 }
 
@@ -266,5 +255,3 @@ init();
 </script>
 </body>
 </html>
-
-
