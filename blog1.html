@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Blog</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100..700&display=swap");
+    body {
+      font-family: "Montserrat", sans-serif;
+      font-size: 1rem;
+      margin: 0;
+      background-color: #1f2020;
+      color: #f9f6ef;
+    }
+    h1 {
+      /* font-wrap: balanced; */
+      font-size: clamp(2rem, 7cqi, 10rem);
+      font-weight: 100;
+      color: hsl(290 85% 75%);
+    }
+    img {
+      max-width: 100%;
+    }
+    p {
+      text-wrap: pretty;
+    }
+    article {
+      width: min(60ch, 100% - 4rem);
+      margin: 0 auto;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      h1 {
+        animation: fade-out 2s linear both, colorize 2s linear both;
+        animation-timeline: view();
+        animation-range: exit -10px, exit -100px;
+        background: linear-gradient(in hsl longer hue 40deg, #f66 0 0);
+        background-clip: text;
+      }
+      @keyframes colorize {
+        to {
+          font-weight: 600;
+          color: #0000;
+        }
+      }
+      @keyframes fade-out {
+        to {
+          scale: 150%;
+          opacity: 0;
+          filter: blur(5px);
+        }
+      }
+      img {
+        position: relative;
+        animation: scrollin 2.5s cubic-bezier(0.23, -0.26, 0.78, 1.29) both, fade-out 2s linear both;
+        animation-timeline: view();
+        animation-range: 1vh 50vh, exit -10px;
+        transform-origin: left;
+      }
+      @keyframes scrollin {
+        from {
+          scale: 0.3;
+          opacity: 0;
+          left: -25vh;
+        }
+        to {
+          opacity: 1;
+          scale: 1;
+          left: 0;
+        }
+      }
+      .path {
+        border-radius: 40vh 180vh 180vh 10vh;
+      }
+      .wheel {
+        offset-path: polygon(
+          0 0,
+          97% 12%,
+          0% 18%,
+          100% 25%,
+          0% 33%,
+          96% 40%,
+          1% 49%,
+          100% 56%,
+          0% 66%,
+          100% 71%,
+          3% 81%,
+          100% 86%,
+          0% 92%,
+          100% 100%,
+          0 100%
+        );
+        animation: followpath linear;
+        animation-timeline: scroll();
+      }
+      @keyframes followpath {
+        from {
+          offset-distance: 4%;
+        }
+        to {
+          offset-distance: 50%;
+        }
+      }
+      .path {
+        position: fixed;
+        z-index: 100;
+        pointer-events: none;
+        top: 1em;
+        left: 0.5em;
+        width: 1rem;
+        height: 40vw;
+        border: 1px solid #fff6;
+        border-left-color: #0000;
+        background: radial-gradient(
+            farthest-side at -33.33% 50%,
+            #0000 52%,
+            #f3f0f050 54% 57%,
+            #0000 59%
+          ) 0 calc(64px / 2),
+          radial-gradient(
+            farthest-side at 50% 133.33%,
+            #0000 52%,
+            #f3f0f050 54% 57%,
+            #0000 59%
+          ) calc(64px / 2) 0,
+          radial-gradient(
+            farthest-side at 133.33% 50%,
+            #0000 52%,
+            #f3f0f050 54% 57%,
+            #0000 59%
+          ),
+          radial-gradient(
+            farthest-side at 50% -33.33%,
+            #0000 52%,
+            #f3f0f050 54% 57%,
+            #0000 59%
+          ),
+          #0000;
+        background-size: calc(64px / 4.667) 64px, 64px calc(64px / 4.667);
+      }
+      .wheel {
+        width: 0px;
+        aspect-ratio: 1;
+        border: 1px solid hsl(290 85% 75% / 0.7);
+        border-width: 0.4vw 1vw;
+        border-radius: 30%;
+      }
+      .path:after,
+      .path:before {
+        content: "0%";
+        text-align: center;
+        font-size: 0.5rem;
+        position: absolute;
+        inset: -0.5vw;
+        top: 1em;
+        opacity: 0.9;
+      }
+      .path:before {
+        content: "100%";
+        top: unset;
+        bottom: 0.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="path">
+    <div class="wheel"></div>
+  </div>
+  <article>
+    <h1>Nature Blog</h1>
+    <p>Animation-timeline - does not have much love in Firefox and Safari still.</p>
+    <p>While it proivdes for a applying styles based on timeline, right inside the css, and hence encapsulating the functionality, it is still not fully supported, and as such for now it is still better to fallback to a Javascript IntersectionObserver or a library that provides this functionality.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vitae ex tristique, convallis nunc et, tincidunt tortor. Nulla mattis euismod tempus. Maecenas nec tempus mauris, quis consectetur erat. Nunc nisi lorem, ornare quis est vel, sollicitudin pellentesque felis.</p>
+    <img src="https://images.unsplash.com/photo-1423483641154-5411ec9c0ddf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTkxOTQ5NDZ8&ixlib=rb-4.0.3&q=80&w=400" alt="hands holding a big bunch of grapes. " title="Photo by Maja Petric for Unsplash">
+    <p>Dolores, quia illo magni eligendi eveniet corporis, laudantium obcaecati eius unde reprehenderit impedit, saepe amet nesciunt? Nulla, optio quam architecto libero, accusamus commodi, similique consequatur nam voluptatum debitis dolores suscipit.</p>
+    <p>Vel architecto laboriosam mollitia earum accusantium sunt, minima distinctio exercitationem commodi asperiores facilis recusandae ducimus nemo excepturi similique. Dolor suscipit culpa adipisci nobis alias consequuntur quisquam, minima iusto quis quasi?</p>
+    <img src="https://images.unsplash.com/photo-1500762736728-b34f37b78c7b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTkxOTUyMDh8&ixlib=rb-4.0.3&q=80&w=400" alt="" title="Photo by Yair Mejía for Unsplash.">
+    <p>Nam sed laboriosam dolor rem impedit vel dignissimos. Eligendi maiores quisquam inventore magni quam. Exercitationem atque necessitatibus voluptates mollitia soluta, doloremque tempora cum reprehenderit vero deleniti facilis minima molestiae voluptatem.</p>
+    <img src="https://images.unsplash.com/photo-1519897831810-a9a01aceccd1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTkxOTUwMTl8&ixlib=rb-4.0.3&q=80&w=400" alt="" title="Photo by PHÚC LONG for Unsplash. ">
+    <p>Neque magnam veniam, delectus voluptas inventore in dolorum consequatur eum facere consequuntur nihil repudiandae nesciunt praesentium dicta amet nisi necessitatibus! Officiis quam ipsam repellendus, accusamus sapiente cumque repellat ullam eligendi.</p>
+    <p>Quidem mollitia dolore facere maiores perspiciatis nihil minus inventore tempora animi amet culpa quaerat, numquam ratione cum totam consectetur eius vel deleniti. Hic facilis magnam ipsam suscipit doloribus officiis eveniet.</p>
+    <p>Nulla voluptatem eaque ipsam cumque doloremque enim, facilis magnam veritatis autem fugit rem harum est accusantium maiores esse, fuga voluptas quos deserunt dolorum debitis velit nesciunt tenetur. Dignissimos, odit? Sit!</p>
+    <p>Esse corporis, voluptas nostrum perspiciatis quasi natus magnam voluptatem consequuntur, consectetur reprehenderit minima est error autem praesentium expedita quas. Necessitatibus deserunt doloribus rerum, eligendi vel magnam corrupti perferendis possimus corporis!</p>
+  </article>
+</body>
+</html>
