@@ -1,1 +1,337 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Dots | Tech</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+      background: #000;
+      width: 100vw;
+      height: 100vh;
+      overflow-x: hidden;
+    }
+    .large-header {
+      position: relative;
+      width: 100%;
+      background: #333;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center center;
+      z-index: 1;
+      /* Remove any border or box-shadow */
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+    #large-header {
+      background-image: url('https://www.marcoguglie.it/Codepen/AnimatedHeaderBg/demo-1/img/demo-1-bg.jpg');
+    }
+    .main-title {
+      position: absolute;
+      margin: 0;
+      padding: 0;
+      color: #f9f1e9;
+      text-align: center;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate3d(-50%,-50%,0);
+      transform: translate3d(-50%,-50%,0);
+      font-size: 3.2em;
+    }
+    .demo-1 .main-title {
+      text-transform: uppercase;
+      font-size: 4.2em;
+      letter-spacing: 0.1em;
+    }
+    .main-title .thin {
+      font-weight: 200;
+      display: block;
+      font-size: 0.32em;
+      margin-top: 0.5em;
+      letter-spacing: 0.02em;
+      opacity: 0.85;
+    }
+    @media only screen and (max-width : 768px) {
+      .demo-1 .main-title {
+        font-size: 3em;
+      }
+    }
+    .large-header:hover canvas {
+      filter: brightness(2) drop-shadow(0 0 16px #9cd9f9cc);
+      transition: filter 0.3s;
+    }
+    /* Floating Navbar Styles */
+    .floating-navbar {
+      position: fixed;
+      top: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 2rem;
+      padding: 0.2rem 1.2rem;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 2.2rem;
+      z-index: 10;
+      transition: background 0.3s;
+      backdrop-filter: blur(8px);
+      width: 340px;
+      max-width: 98vw;
+      justify-content: space-between;
+      border-right: 1.5px solid #979393;
+      border-bottom: 1.5px solid #958f8f;
+      box-shadow:
+        2px 0 4px 0 #fff6,
+        0 2px 4px 0 #fff6;
+    }
+    .navbar-logo {
+      width: 20px;
+      height: 20px;
+      box-shadow: none;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      object-fit: contain;
+      padding: 0;
+      background: none;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+    .navbar-link {
+      color: #ece9e6e2;
+      font-size: 1.2rem;
+      text-decoration: none;
+      padding: 0.15rem 0.7rem;
+      border-radius: 0.8rem;
+      transition: background 0.2s, color 0.2s;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: none;
+      background: none;
+    }
+    .navbar-link i {
+      font-size: 1.2em;
+      color: #e3e0dc;
+      transition: color 0.2s;
+    }
+    .navbar-link:hover {
+      background: none;
+      color: #ff4fd8;
+    }
+    .navbar-link:hover i {
+      color: #ff4fd8;
+      text-shadow: 0 0 8px #5d575c, 0 0 16px #ff4fd8;
+    }
+    @media (max-width: 600px) {
+      .floating-navbar {
+        padding: 0.1rem 0.5rem;
+        gap: 1.2rem;
+        min-height: 28px;
+        width: 99vw;
+        min-width: unset;
+        max-width: 100vw;
+      }
+      .navbar-link { font-size: 0.95rem; padding: 0.1rem 0.4rem; }
+      .navbar-logo { width: 18px; height: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="floating-navbar">
+    <span style="position:relative;display:flex;align-items:center;justify-content:center;">
+      <img src="images/logo.png" alt="Home" class="navbar-logo" id="homeBtn">
+    </span>
+    <a class="navbar-link" href="index.html" title="Home"><i class="fa-solid fa-house"></i></a>
+    <a class="navbar-link" href="gallery.html" title="Gallery"><i class="fa-solid fa-image"></i></a>
+    <a class="navbar-link" href="about.html" title="About"><i class="fa-solid fa-user"></i></a>
+    <a class="navbar-link" href="contact.html" title="Contact"><i class="fa-solid fa-envelope"></i></a>
+  </nav>
+  <div id="large-header" class="large-header">
+    <canvas id="demo-canvas"></canvas>
+    <h1 class="main-title">Explore the hidden world behind Technologies <span class="thin">Let's start the journey with some satisfying clicks</span></h1>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenLite.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/easing/EasePack.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+  <script>
+    (function() {
+      var width, height, largeHeader, canvas, ctx, points, target, animateHeader = true;
+      // Main
+      initHeader();
+      initAnimation();
+      addListeners();
+      function initHeader() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        target = { x: width / 2, y: height / 2 };
+        largeHeader = document.getElementById('large-header');
+        largeHeader.style.height = height + 'px';
+        canvas = document.getElementById('demo-canvas');
+        canvas.width = width;
+        canvas.height = height;
+        ctx = canvas.getContext('2d');
+        // create points
+        points = [];
+        for (var x = 0; x < width; x = x + width / 20) {
+          for (var y = 0; y < height; y = y + height / 20) {
+            var px = x + Math.random() * width / 20;
+            var py = y + Math.random() * height / 20;
+            var p = { x: px, originX: px, y: py, originY: py };
+            points.push(p);
+          }
+        }
+        // for each point find the 5 closest points
+        for (var i = 0; i < points.length; i++) {
+          var closest = [];
+          var p1 = points[i];
+          for (var j = 0; j < points.length; j++) {
+            var p2 = points[j];
+            if (!(p1 == p2)) {
+              var placed = false;
+              for (var k = 0; k < 5; k++) {
+                if (!placed) {
+                  if (closest[k] == undefined) {
+                    closest[k] = p2;
+                    placed = true;
+                  }
+                }
+              }
+              for (var k = 0; k < 5; k++) {
+                if (!placed) {
+                  if (getDistance(p1, p2) < getDistance(p1, closest[k])) {
+                    closest[k] = p2;
+                    placed = true;
+                  }
+                }
+              }
+            }
+          }
+          p1.closest = closest;
+        }
+        // assign a circle to each point
+        for (var i in points) {
+          var c = new Circle(points[i], 2 + Math.random() * 2, 'rgba(255,255,255,0.3)');
+          points[i].circle = c;
+        }
+      }
+      // Event handling
+      function addListeners() {
+        if (!('ontouchstart' in window)) {
+          window.addEventListener('mousemove', mouseMove);
+        }
+        window.addEventListener('scroll', scrollCheck);
+        window.addEventListener('resize', resize);
+      }
+      function mouseMove(e) {
+        var posx = 0, posy = 0;
+        if (e.pageX || e.pageY) {
+          posx = e.pageX;
+          posy = e.pageY;
+        } else if (e.clientX || e.clientY) {
+          posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+          posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        }
+        target.x = posx;
+        target.y = posy;
+      }
+      function scrollCheck() {
+        if (document.body.scrollTop > height) animateHeader = false;
+        else animateHeader = true;
+      }
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        largeHeader.style.height = height + 'px';
+        canvas.width = width;
+        canvas.height = height;
+      }
+      // animation
+      function initAnimation() {
+        animate();
+        for (var i in points) {
+          shiftPoint(points[i]);
+        }
+      }
+      function animate() {
+        if (animateHeader) {
+          ctx.clearRect(0, 0, width, height);
+          for (var i in points) {
+            // detect points in range
+            if (Math.abs(getDistance(target, points[i])) < 4000) {
+              points[i].active = 0.3;
+              points[i].circle.active = 0.6;
+            } else if (Math.abs(getDistance(target, points[i])) < 20000) {
+              points[i].active = 0.1;
+              points[i].circle.active = 0.3;
+            } else if (Math.abs(getDistance(target, points[i])) < 40000) {
+              points[i].active = 0.02;
+              points[i].circle.active = 0.1;
+            } else {
+              points[i].active = 0;
+              points[i].circle.active = 0;
+            }
+            drawLines(points[i]);
+            points[i].circle.draw();
+          }
+        }
+        requestAnimationFrame(animate);
+      }
+      function shiftPoint(p) {
+        TweenLite.to(p, 1 + 1 * Math.random(), {
+          x: p.originX - 50 + Math.random() * 100,
+          y: p.originY - 50 + Math.random() * 100,
+          ease: Circ.easeInOut,
+          onComplete: function () {
+            shiftPoint(p);
+          }
+        });
+      }
+      // Canvas manipulation
+      function drawLines(p) {
+        if (!p.active) return;
+        for (var i in p.closest) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.closest[i].x, p.closest[i].y);
+          ctx.strokeStyle = 'rgba(156,217,249,' + p.active + ')';
+          ctx.stroke();
+        }
+      }
+      function Circle(pos, rad, color) {
+        var _this = this;
+        // constructor
+        (function () {
+          _this.pos = pos || null;
+          _this.radius = rad || null;
+          _this.color = color || null;
+        })();
+        this.draw = function () {
+          if (!_this.active) return;
+          ctx.beginPath();
+          ctx.arc(_this.pos.x, _this.pos.y, _this.radius, 0, 2 * Math.PI, false);
+          ctx.fillStyle = 'rgba(156,217,249,' + _this.active + ')';
+          ctx.fill();
+        };
+      }
+      // Util
+      function getDistance(p1, p2) {
+        return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
+      }
+    })();
+    // Home button (logo) click navigates to index.html
+    document.getElementById('homeBtn').onclick = function() {
+      window.location.href = 'index.html';
+    };
+  </script>
+</body>
+</html>

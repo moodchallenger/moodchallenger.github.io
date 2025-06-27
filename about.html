@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Moodchallenger</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Major+Mono+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: #061928;
+      color: #fff;
+      font-family: 'Montserrat', Arial, sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+    #rain-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      display: block;
+    }
+    .background-text {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      user-select: none;
+    }
+    .background-text h1 {
+      margin: 0;
+      font-size: 8vw;
+      color: rgba(225,225,225, .01);
+      background-image: url("https://images.unsplash.com/photo-1499195333224-3ce974eecb47?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=2cf549433129d4227d1879347b9e78ce&auto=format&fit=crop&w=1248&q=80");
+      background-repeat: repeat;
+      background-size: cover;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: animate 15s ease-in-out infinite;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      user-select: none;
+    }
+    @keyframes animate {
+      0%, 100% {
+        background-position: left top;
+      }
+      25%{
+        background-position: right bottom;
+      }
+      50% {
+        background-position: left bottom;
+      }
+      75% {
+        background-position: right top;
+      }
+    }
+    #topo-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    .floating-navbar {
+      position: fixed;
+      top: 0px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100%);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(.4,1.6,.4,1), opacity 0.35s cubic-bezier(.4,1.6,.4,1);
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 2rem;
+      padding: 0.2rem 1.2rem;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 3.2rem;
+      z-index: 2;
+      width: 420px;
+      max-width: 98vw;
+      justify-content: space-between;
+      /* Remove border and box-shadow for light line */
+      border: none;
+      box-shadow: none;
+    }
+    .navbar-logo {
+      width: 20px;
+      height: 20px;
+      /* Remove border-radius and background so the logo keeps its own shape */
+      box-shadow: none;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      object-fit: contain;
+      padding: 0;
+      background: none;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+    .navbar-logo-glow {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 44px;
+      height: 44px;
+      transform: translate(-50%, -50%);
+      border-radius: 18px;
+      background: radial-gradient(circle, #ffb34788 0%, transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.3s;
+    }
+    .navbar-logo:hover + .navbar-logo-glow,
+    .navbar-logo:focus + .navbar-logo-glow {
+      opacity: 1;
+    }
+    .navbar-link {
+      color: #ece9e6e2;
+      font-family: 'Major Mono Display', monospace;
+      font-size: 1rem;
+      text-decoration: none;
+      padding: 0.15rem 0.7rem;
+      border-radius: 0.8rem;
+      transition: background 0.2s, color 0.2s;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: none;
+      background: none;
+    }
+    .navbar-link i {
+      font-size: 1.1em;
+      color: #e3e0dc;
+      transition: color 0.2s;
+    }
+    .navbar-link:hover {
+      background: none;
+      color: #ff4fd8;
+    }
+    .navbar-link:hover i {
+      color: #ff4fd8;
+      text-shadow: 0 0 8px #5d575c, 0 0 16px #ff4fd8;
+    }
+    @media (max-width: 600px) {
+      .floating-navbar {
+        padding: 0.1rem 0.5rem;
+        gap: 1.7rem;
+        min-height: 28px;
+        width: 99vw;
+        min-width: unset;
+        max-width: 100vw;
+      }
+      .navbar-link { font-size: 0.85rem; padding: 0.1rem 0.4rem; }
+      .navbar-logo { width: 20px; height: 20px; }
+      .navbar-logo-glow { width: 32px; height: 32px; }
+    }
+    .floating-navbar.visible {
+      transform: translateX(-50%) translateY(32px);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="rain-canvas"></canvas>
+  <div class="background-text">
+    <h1>Moodchallenger</h1>
+  </div>
+  <nav class="floating-navbar" id="navbar">
+    <span style="position:relative;display:flex;align-items:center;justify-content:center;">
+      <img src="images/logo.png" alt="Home" class="navbar-logo" id="homeBtn">
+      <span class="navbar-logo-glow"></span>
+    </span>
+    <a class="navbar-link" href="gallery.html" title="Gallery"><i class="fa-solid fa-mountain-sun"></i></a>
+    <a class="navbar-link" href="blog.html" title="Blog"><i class="fa-solid fa-feather-pointed"></i></a>
+    <a class="navbar-link" href="about.html" title="About"><i class="fa-solid fa-user-astronaut"></i></a>
+    <a class="navbar-link" href="contact.html" title="Contact"><i class="fa-solid fa-paper-plane"></i></a>
+  </nav>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var canvas = $('#rain-canvas')[0];
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      if(canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        var w = canvas.width;
+        var h = canvas.height;
+        ctx.strokeStyle = 'rgba(174,194,224,0.5)';
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round';
+        var init = [];
+        var maxParts = 1000;
+        for(var a = 0; a < maxParts; a++) {
+          init.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            l: Math.random() * 1,
+            xs: -4 + Math.random() * 4 + 2,
+            ys: Math.random() * 10 + 10
+          })
+        }
+        var particles = [];
+        for(var b = 0; b < maxParts; b++) {
+          particles[b] = init[b];
+        }
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          for(var c = 0; c < particles.length; c++) {
+            var p = particles[c];
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
+            ctx.stroke();
+          }
+          move();
+        }
+        function move() {
+          for(var b = 0; b < particles.length; b++) {
+            var p = particles[b];
+            p.x += p.xs;
+            p.y += p.ys;
+            if(p.x > w || p.y > h) {
+              p.x = Math.random() * w;
+              p.y = -20;
+            }
+          }
+        }
+        setInterval(draw, 30);
+      }
+    });
+  </script>
+  <script>
+    // Home button (logo) click navigates to index.html
+    document.getElementById('homeBtn').onclick = function() {
+      window.location.href = 'index.html';
+    };
+    // Glow effect on hover
+    const logo = document.getElementById('homeBtn');
+    const glow = document.querySelector('.navbar-logo-glow');
+    logo.addEventListener('mouseenter', () => { glow.style.opacity = 1; });
+    logo.addEventListener('mouseleave', () => { glow.style.opacity = 0; });
+    logo.addEventListener('focus', () => { glow.style.opacity = 1; });
+    logo.addEventListener('blur', () => { glow.style.opacity = 0; });
+
+    // Show navbar only when cursor is near the top
+    const navbar = document.getElementById('navbar');
+    let navVisible = false;
+    document.addEventListener('mousemove', (e) => {
+      if (e.clientY < 64) {
+        if (!navVisible) {
+          navbar.classList.add('visible');
+          navVisible = true;
+        }
+      } else {
+        if (navVisible) {
+          navbar.classList.remove('visible');
+          navVisible = false;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
